@@ -1,5 +1,6 @@
 // Small fetch wrapper used by every page.
 // Turns network failures and API error bodies into one ApiError type.
+import { getToken } from '../auth/tokenStore';
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? '';
 
@@ -20,7 +21,11 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
   if (options.body && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
   }
-  // Issue #4 (F-01) adds: Authorization: Bearer <token> from sessionStorage.
+  // F-01: send the session token. The server decides who the user is; the client never sends a role or user id.
+  const token = getToken();
+  if (token && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
 
   let res: Response;
   try {
