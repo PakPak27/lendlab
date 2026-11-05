@@ -5,6 +5,7 @@ import express from 'express';
 import cors from 'cors';
 import { getConfig } from './config.js';
 import { healthRouter } from './routes/health.js';
+import { authRouter } from './routes/auth.js';
 import { apiNotFound, errorHandler } from './middleware/errorHandler.js';
 
 // Builds the Express app without starting it, so tests can import it.
@@ -31,7 +32,8 @@ export function createApp() {
 
   // --- API routes ---
   app.use('/api', healthRouter);
-  // Feature routers are added here by Issues #4-#8.
+  app.use('/api', authRouter);
+  // Remaining feature routers are added here by Issues #5-#8.
 
   app.use('/api', apiNotFound);
 

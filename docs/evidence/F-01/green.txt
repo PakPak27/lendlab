@@ -1,0 +1,32 @@
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ✓ tests/unit/errorHandler.test.ts (5 tests) 4ms
+ ✓ tests/unit/authService.test.ts (2 tests) 5ms
+ ✓ tests/unit/session.test.ts (6 tests) 4ms
+ ✓ tests/unit/config.test.ts (4 tests) 4ms
+ ✓ tests/unit/errors.test.ts (2 tests) 2ms
+ ✓ tests/unit/password.test.ts (2 tests) 261ms
+
+ Test Files  6 passed (6)
+      Tests  21 passed (21)
+   Start at  03:42:47
+   Duration  2.12s (transform 85ms, setup 0ms, collect 337ms, tests 279ms, environment 1ms, prepare 578ms)
+
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ✓ tests/api/auth.test.ts (29 tests) 8554ms
+   ✓ POST /api/auth/login > logs in with valid credentials (TEST-01-01 / AC-01-01) 2359ms
+   ✓ POST /api/auth/login > rejects an unknown e-mail with the same message (TEST-01-03 / AC-01-02) 320ms
+   ✓ seeded passwords (AC-01-06) > are bcrypt hashes that differ from the plaintext and verify correctly 426ms
+   ✓ POST /api/auth/logout > only revokes the calling session, not the user's other sessions 320ms
+ ✓ tests/api/constraints.test.ts (8 tests) 5610ms
+   ✓ BR-02 one open commitment per item (database constraints) > DB allows one pending request per item 4312ms
+ ✓ tests/api/health.test.ts (10 tests) 2736ms
+
+ Test Files  3 passed (3)
+      Tests  47 passed (47)
+   Start at  03:42:51
+   Duration  18.70s (transform 120ms, setup 0ms, collect 976ms, tests 16.90s, environment 0ms, prepare 298ms)
+
