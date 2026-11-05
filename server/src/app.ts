@@ -6,6 +6,8 @@ import cors from 'cors';
 import { getConfig } from './config.js';
 import { healthRouter } from './routes/health.js';
 import { authRouter } from './routes/auth.js';
+import { authenticate } from './middleware/authenticate.js';
+import { requireRole } from './middleware/requireRole.js';
 import { apiNotFound, errorHandler } from './middleware/errorHandler.js';
 
 // Builds the Express app without starting it, so tests can import it.
@@ -33,6 +35,12 @@ export function createApp() {
   // --- API routes ---
   app.use('/api', healthRouter);
   app.use('/api', authRouter);
+
+  // F-02: access guards. Order is 401 (authenticate) -> 403 (role) -> 404 (record scope) -> 409 (business rule).
+  // They sit in front of the feature routers below, so a feature cannot forget them.
+  app.use('/api/items', authenticate);
+  app.use('/api/requests', authenticate, requireRole('BORROWER')); // BR-07: custodians cannot create or read borrower requests
+  app.use('/api/custodian', authenticate, requireRole('CUSTODIAN')); // BR-07: borrowers cannot use custodian operations
   // Remaining feature routers are added here by Issues #5-#8.
 
   app.use('/api', apiNotFound);

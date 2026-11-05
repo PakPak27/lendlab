@@ -12,6 +12,7 @@
 | Version | Date | Change |
 |---|---|---|
 | v0.1 | 2026-11-05 | Contract written before implementation |
+| v0.2 | 2026-11-06 | Implementation (PR for #5): guards are mounted by path prefix in `app.ts` (`/api/items` → authenticate; `/api/requests` → borrower only; `/api/custodian` → custodian only), so they exist before the feature routers do. TEST-02-04 needs `GET /api/requests/:id` (F-04, #7) and TEST-02-05/06 need the custodian queue and checkout (F-05, #8), which do not exist yet, so those three tests are written in the F-04 and F-05 PRs. `scope.ts` (`borrowerScope`, `custodianScope`) is delivered here with unit tests. Everything else is tested in this PR. |
 
 ## 1. Purpose and scope
 
