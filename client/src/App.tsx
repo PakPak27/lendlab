@@ -3,7 +3,8 @@ import { homePathFor, useAuth } from './auth/AuthContext';
 import ProtectedRoute from './auth/ProtectedRoute';
 import ForbiddenPage from './pages/ForbiddenPage';
 import LoginPage from './pages/LoginPage';
-import { CatalogPlaceholder, CustodianRequestsPlaceholder, MyBorrowingPlaceholder } from './pages/Placeholders';
+import CustodianRequestsPage from './pages/CustodianRequestsPage';
+import { CatalogPlaceholder, MyBorrowingPlaceholder } from './pages/Placeholders';
 
 // Role-aware navigation (F-02): borrowers see Catalog and My Borrowing, custodians see Requests.
 function NavLinks() {
@@ -84,7 +85,7 @@ export default function App() {
             path="/custodian/requests"
             element={
               <ProtectedRoute roles={['CUSTODIAN']}>
-                <CustodianRequestsPlaceholder />
+                <CustodianRequestsPage />
               </ProtectedRoute>
             }
           />
