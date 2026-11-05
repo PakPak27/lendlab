@@ -1,0 +1,53 @@
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ✓ tests/unit/errorHandler.test.ts (5 tests) 4ms
+ ❯ tests/unit/authService.test.ts (0 test)
+ ❯ tests/unit/session.test.ts (0 test)
+ ✓ tests/unit/config.test.ts (4 tests) 4ms
+ ✓ tests/unit/errors.test.ts (2 tests) 3ms
+ ❯ tests/unit/password.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/authService.test.ts [ tests/unit/authService.test.ts ]
+Error: Failed to load url ../../src/services/authService.js (resolved id: ../../src/services/authService.js) in C:/Users/sirab/lendlab/server/tests/unit/authService.test.ts. Does the file exist?
+ ❯ loadAndTransform ../node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/unit/password.test.ts [ tests/unit/password.test.ts ]
+Error: Failed to load url ../../src/lib/password.js (resolved id: ../../src/lib/password.js) in C:/Users/sirab/lendlab/server/tests/unit/password.test.ts. Does the file exist?
+ ❯ loadAndTransform ../node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/unit/session.test.ts [ tests/unit/session.test.ts ]
+Error: Failed to load url ../../src/lib/session.js (resolved id: ../../src/lib/session.js) in C:/Users/sirab/lendlab/server/tests/unit/session.test.ts. Does the file exist?
+ ❯ loadAndTransform ../node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  3 failed | 3 passed (6)
+      Tests  11 passed (11)
+   Start at  03:42:07
+   Duration  1.79s (transform 75ms, setup 0ms, collect 144ms, tests 12ms, environment 1ms, prepare 581ms)
+
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ❯ tests/api/auth.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/api/auth.test.ts [ tests/api/auth.test.ts ]
+Error: Failed to load url ../../src/lib/password.js (resolved id: ../../src/lib/password.js) in C:/Users/sirab/lendlab/server/tests/api/auth.test.ts. Does the file exist?
+ ❯ loadAndTransform ../node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  03:42:11
+   Duration  651ms (transform 70ms, setup 0ms, collect 0ms, tests 0ms, environment 0ms, prepare 102ms)
+
