@@ -79,9 +79,12 @@ export async function seed(client: PrismaClient = prisma, demoPassword = process
 
   const passwordHash = await bcrypt.hash(demoPassword, 10);
   for (const user of USERS) {
+    // Password, role, and isActive are set only when the account is first created.
+    // Re-running the seed (e.g. on the Lab 5 database) must not reset passwords
+    // or re-activate accounts that were deactivated.
     const row = await client.user.upsert({
       where: { email: user.email },
-      update: { name: user.name, role: user.role, passwordHash, isActive: true },
+      update: { name: user.name },
       create: { email: user.email, name: user.name, role: user.role, passwordHash },
     });
     for (const code of user.locations) {

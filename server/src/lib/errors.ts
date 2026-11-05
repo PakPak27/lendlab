@@ -10,6 +10,7 @@ export type ErrorCode =
   | 'ITEM_NOT_FOUND'
   | 'ITEM_NOT_AVAILABLE'
   | 'REQUEST_NOT_PENDING'
+  | 'CONFLICT'
   | 'INTERNAL_ERROR';
 
 export interface ErrorDetail {

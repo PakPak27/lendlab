@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
-import { Prisma } from '@prisma/client';
 import { AppError, toErrorBody } from '../lib/errors.js';
+import { isUniqueViolation } from '../lib/prismaErrors.js';
 
 // Unknown /api routes -> 404 in the standard error shape.
 export function apiNotFound(_req: Request, res: Response) {
@@ -21,10 +21,13 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
     });
   }
 
-  // A unique constraint violation that a service did not map itself.
-  if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+  // Safety net for a unique-constraint violation that a service did not map itself.
+  // Services must catch their own expected conflicts (with isUniqueViolation) and throw
+  // the specific code, e.g. ITEM_NOT_AVAILABLE or REQUEST_NOT_PENDING. This generic
+  // fallback deliberately does not guess which business rule was broken.
+  if (isUniqueViolation(err)) {
     return res.status(409).json({
-      error: { code: 'ITEM_NOT_AVAILABLE', message: 'The operation conflicts with existing data.' },
+      error: { code: 'CONFLICT', message: 'The operation conflicts with existing data.' },
     });
   }
 

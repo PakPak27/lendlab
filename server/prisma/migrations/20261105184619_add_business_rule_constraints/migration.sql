@@ -1,6 +1,4 @@
 -- Business-rule constraints that the Prisma schema language cannot express.
--- Copy this SQL into the migration created with:
---   npx prisma migrate dev --create-only --name add_business_rule_constraints
 
 -- BR-02: an item can have at most one PENDING request.
 CREATE UNIQUE INDEX "BorrowRequest_one_pending_per_item"

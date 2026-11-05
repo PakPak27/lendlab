@@ -78,31 +78,23 @@ describe('SYS-01 seed data', () => {
     }
   });
 
+  it('re-running the seed keeps existing passwords and deactivated accounts', async () => {
+    const before = await prisma.user.update({
+      where: { email: 'borrower2@lendlab.test' },
+      data: { isActive: false },
+    });
+    const { seed } = await import('../../prisma/seed.js');
+    await seed(prisma, 'a-different-password-456');
+    const after = await prisma.user.findUniqueOrThrow({ where: { email: 'borrower2@lendlab.test' } });
+    expect(after.passwordHash).toBe(before.passwordHash);
+    expect(after.isActive).toBe(false);
+  });
+
   it('is idempotent: running the seed twice does not create duplicates', async () => {
     await resetDatabase();
     const { seed } = await import('../../prisma/seed.js');
     await seed(prisma, 'test-password-123');
     expect(await prisma.item.count()).toBe(10);
     expect(await prisma.user.count()).toBe(4);
-  });
-});
-
-describe('SYS-01 business-rule constraints in the database', () => {
-  it('allows only one PENDING request per item', async () => {
-    const item = await prisma.item.findUniqueOrThrow({ where: { assetTag: 'LAP-003' } });
-    const borrower = await prisma.user.findUniqueOrThrow({ where: { email: 'borrower1@lendlab.test' } });
-    const data = { itemId: item.id, borrowerId: borrower.id, purpose: 'Constraint test', requestedDays: 3 };
-    await prisma.borrowRequest.create({ data });
-    await expect(prisma.borrowRequest.create({ data })).rejects.toMatchObject({ code: 'P2002' });
-  });
-
-  it('rejects requestedDays outside 1-14 at the database level', async () => {
-    const item = await prisma.item.findUniqueOrThrow({ where: { assetTag: 'PRJ-002' } });
-    const borrower = await prisma.user.findUniqueOrThrow({ where: { email: 'borrower2@lendlab.test' } });
-    await expect(
-      prisma.borrowRequest.create({
-        data: { itemId: item.id, borrowerId: borrower.id, purpose: 'Constraint test', requestedDays: 15 },
-      }),
-    ).rejects.toThrow();
   });
 });

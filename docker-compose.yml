@@ -10,7 +10,8 @@ services:
       POSTGRES_PASSWORD: lendlab
       POSTGRES_DB: lendlab
     ports:
-      - "5432:5432"
+      # Bound to 127.0.0.1 so the database is not reachable from other machines.
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./server/prisma/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
