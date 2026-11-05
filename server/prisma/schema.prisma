@@ -1,0 +1,159 @@
+// LendLab data model - see docs/system-sds.md section 2.
+// Partial unique indexes and the CHECK constraint are added in the
+// hand-written migration "add_business_rule_constraints" because the Prisma
+// schema language cannot express them.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  BORROWER
+  CUSTODIAN
+}
+
+enum ItemStatus {
+  AVAILABLE
+  RESERVED
+  ON_LOAN
+  MAINTENANCE
+  RETIRED
+}
+
+enum RequestStatus {
+  PENDING
+  FULFILLED
+  REJECTED
+  CANCELLED
+}
+
+enum LoanStatus {
+  ACTIVE
+  RETURNED
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         Role
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  sessions          Session[]
+  locations         CustodianLocation[]
+  requests          BorrowRequest[]     @relation("RequestBorrower")
+  decidedRequests   BorrowRequest[]     @relation("RequestDecidedBy")
+  loans             Loan[]              @relation("LoanBorrower")
+  checkedOutLoans   Loan[]              @relation("LoanCheckedOutBy")
+  returnedLoans     Loan[]              @relation("LoanReturnedBy")
+}
+
+model Session {
+  id        Int       @id @default(autoincrement())
+  tokenHash String    @unique
+  userId    Int
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Location {
+  id   Int    @id @default(autoincrement())
+  code String @unique
+  name String
+
+  custodians CustodianLocation[]
+  items      Item[]
+}
+
+model CustodianLocation {
+  userId     Int
+  locationId Int
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@id([userId, locationId])
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  items Item[]
+}
+
+model Item {
+  id          Int        @id @default(autoincrement())
+  assetTag    String     @unique
+  name        String
+  description String?
+  categoryId  Int
+  locationId  Int
+  status      ItemStatus @default(AVAILABLE)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  category Category        @relation(fields: [categoryId], references: [id])
+  location Location        @relation(fields: [locationId], references: [id])
+  requests BorrowRequest[]
+  loans    Loan[]
+
+  @@index([locationId])
+  @@index([status])
+}
+
+model BorrowRequest {
+  id            Int           @id @default(autoincrement())
+  itemId        Int
+  borrowerId    Int
+  purpose       String
+  requestedDays Int
+  status        RequestStatus @default(PENDING)
+  decidedById   Int?
+  decidedAt     DateTime?
+  decisionNote  String?
+  createdAt     DateTime      @default(now())
+
+  item      Item  @relation(fields: [itemId], references: [id])
+  borrower  User  @relation("RequestBorrower", fields: [borrowerId], references: [id])
+  decidedBy User? @relation("RequestDecidedBy", fields: [decidedById], references: [id])
+  loan      Loan?
+
+  @@index([borrowerId])
+  @@index([itemId])
+  @@index([status])
+}
+
+model Loan {
+  id             Int        @id @default(autoincrement())
+  requestId      Int        @unique
+  itemId         Int
+  borrowerId     Int
+  checkedOutById Int
+  checkedOutAt   DateTime   @default(now())
+  dueAt          DateTime
+  status         LoanStatus @default(ACTIVE)
+  returnedAt     DateTime?
+  returnedById   Int?
+
+  request      BorrowRequest @relation(fields: [requestId], references: [id])
+  item         Item          @relation(fields: [itemId], references: [id])
+  borrower     User          @relation("LoanBorrower", fields: [borrowerId], references: [id])
+  checkedOutBy User          @relation("LoanCheckedOutBy", fields: [checkedOutById], references: [id])
+  returnedBy   User?         @relation("LoanReturnedBy", fields: [returnedById], references: [id])
+
+  @@index([borrowerId])
+  @@index([itemId])
+}
