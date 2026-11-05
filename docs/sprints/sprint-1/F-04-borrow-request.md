@@ -12,6 +12,7 @@
 | Version | Date | Change |
 |---|---|---|
 | v0.1 | 2026-11-05 | Contract written before implementation |
+| v0.2 | 2026-11-06 | Clarified interactive transaction (same reason as F-05 v0.2). |
 
 ## 1. Purpose and scope
 
@@ -21,7 +22,7 @@ A borrower requests one specific available item, stating why and for how many da
 
 1. Borrower clicks **Request** on an Available item → `/catalog/:id/request` shows the item summary and a form: **Purpose** (textarea) and **Loan length (days)** (number, default 7).
 2. Submit → `POST /api/requests`.
-3. In **one transaction** the server:
+3. In **one interactive transaction** (`prisma.$transaction(async (tx) => { ... })`, because step 3.3 depends on the row count from step 3.2) the server:
    1. checks the item exists (else `404 ITEM_NOT_FOUND`);
    2. runs `updateMany({ where: { id: itemId, status: 'AVAILABLE' }, data: { status: 'RESERVED' } })`;
    3. if 0 rows changed → rolls back, `409 ITEM_NOT_AVAILABLE`;

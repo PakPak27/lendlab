@@ -12,6 +12,7 @@
 | Version | Date | Change |
 |---|---|---|
 | v0.1 | 2026-11-05 | Contract written before implementation |
+| v0.2 | 2026-11-06 | Review on PR #11 (@Sirazaza): state that checkout must use an interactive transaction. |
 
 ## 1. Purpose and scope
 
@@ -21,7 +22,7 @@ A custodian sees pending requests for items in their locations and checks one ou
 
 1. Custodian opens `/custodian/requests` → `GET /api/custodian/requests` (Pending, own locations, oldest first).
 2. Custodian clicks **Check out** on a row → confirmation modal "Hand over LAP-001 to Borrower One for 7 days? Due: 14 Nov 2026 10:15" → **Confirm**.
-3. `POST /api/custodian/requests/:id/checkout`. In **one transaction** the server:
+3. `POST /api/custodian/requests/:id/checkout`. In **one interactive transaction** — `prisma.$transaction(async (tx) => { ... })`, not the array form, because each step depends on the result of the previous one (e.g. step 3.3 runs only if step 3.2 changed one row) — the server:
    1. loads the request with its item; if not found or `item.locationId ∉ req.user.locationIds` → `404 NOT_FOUND`;
    2. `updateMany({ where: { id, status: 'PENDING' }, data: { status: 'FULFILLED', decidedById, decidedAt: now } })`; 0 rows → `409 REQUEST_NOT_PENDING`;
    3. `updateMany({ where: { id: itemId, status: 'RESERVED' }, data: { status: 'ON_LOAN' } })`; 0 rows → roll back, `409 ITEM_NOT_AVAILABLE`;

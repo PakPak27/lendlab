@@ -12,6 +12,7 @@
 | Version | Date | Change |
 |---|---|---|
 | v0.1 | 2026-11-05 | Contract written before implementation |
+| v0.2 | 2026-11-06 | Review on PR #11 (@Sirazaza): TEST-03-04 moved to its own file `categories.test.ts`. |
 
 ## 1. Purpose and scope
 
@@ -94,7 +95,7 @@ Both roles may read the catalog. Categories are public. Anonymous access to item
 | TEST-03-01 | AC-03-01 | API | `tests/api/items.test.ts` › "lists catalog items" | Seed (10 items, 0 retired); borrower1 token | GET /api/items | 200; length 10; each has the 5 fields; order matches sort rule; no key `borrower`/`request`/`loan` |
 | TEST-03-02 | AC-03-02 | API | › "filters by status" | `ARD-003` in Maintenance | GET `?status=AVAILABLE`; GET `?status=BROKEN` | First: every item `AVAILABLE`, `ARD-003` absent. Second: 400 `VALIDATION_ERROR` |
 | TEST-03-03 | AC-03-03 | API | › "item detail and not found" | — | GET `/api/items/1`; GET `/api/items/99999` | 200 with `item.assetTag`; 404 `ITEM_NOT_FOUND` |
-| TEST-03-04 | AC-03-04 | API | `tests/api/health.test.ts` › "categories are public" | No token | GET /api/categories | 200; array length ≥ 1 |
+| TEST-03-04 | AC-03-04 | API | `tests/api/categories.test.ts` › "categories are public" | No token | GET /api/categories | 200; array length ≥ 1 |
 | TEST-03-05 | AC-03-05 | E2E | `client/e2e/catalog.spec.ts` | borrower1 signed in | Open `/catalog` | `LAP-001` row shows "Available" and enabled **Request**; `ARD-003` row shows "Maintenance" and disabled **Request** |
 | TEST-03-06 | AC-03-05 | Component | `client/src/pages/CatalogPage.test.tsx` | Mocked API: pending promise / `[]` / 500 error | Render page | Shows "Loading catalog…" / "No items match this filter." / error alert with **Retry** |
 

@@ -12,10 +12,11 @@
 | Version | Date | Change |
 |---|---|---|
 | v0.1 | 2026-11-05 | Contract written before implementation |
+| v0.2 | 2026-11-06 | Review on PR #11 (@Sirazaza): constant-time login for unknown e-mails (dummy hash), password limit set to 72 bytes (bcrypt limit), rate limiting stated as out of scope. Added TEST-01-11. |
 
 ## 1. Purpose and scope
 
-Let seeded users sign in with e-mail and password, identify the current user on every request, and sign out with server-side revocation. Out of scope: registration, password change/recovery, "remember me", token renewal.
+Let seeded users sign in with e-mail and password, identify the current user on every request, and sign out with server-side revocation. Out of scope: registration, password change/recovery, "remember me", token renewal, and **login rate limiting / account lockout**. Rate limiting is deferred because Sprint 1 uses seeded demo accounts only; it is recorded as a known limitation and a candidate for Sprint 3 hardening.
 
 ## 2. Workflow
 
@@ -32,8 +33,9 @@ Session states: `valid` → (`logout`) → `revoked`; `valid` → (time passes `
 
 | Rule | Detail |
 |---|---|
-| Login input | `email`: required, valid e-mail format, max 254 chars. `password`: required, 1–128 chars. Otherwise `400 VALIDATION_ERROR` with field details. |
+| Login input | `email`: required, valid e-mail format, max 254 chars. `password`: required, 1–**72 bytes** in UTF-8 (bcrypt only uses the first 72 bytes, so longer input is rejected rather than silently truncated). Otherwise `400 VALIDATION_ERROR` with field details. |
 | Same failure message | Unknown e-mail, wrong password, and inactive user → `401 INVALID_CREDENTIALS`, message "Invalid e-mail or password." |
+| Same response time | When the e-mail is unknown, the server still runs `bcrypt.compare` against a fixed dummy hash, so an unknown e-mail takes about as long as a wrong password and response timing does not reveal which accounts exist. |
 | Hashing | bcrypt cost 10 (NFR-01). |
 | Token | 32 random bytes, base64url; only SHA-256 hash stored. |
 | Expiry | `SESSION_TTL_HOURS` (default 8) (NFR-04). |
@@ -86,8 +88,8 @@ Login is public. `/me` and `/logout` need a valid session. Role checks are in F-
 | AC | Given / When / Then |
 |---|---|
 | AC-01-01 | Given a seeded active user, when they log in with the correct password, then the response is `200` with a token and a `user` object containing `id`, `email`, `name`, `role`, `locationIds`, and **no** `password` or `passwordHash` field. |
-| AC-01-02 | When the password is wrong **or** the e-mail does not exist, then the response is `401` with code `INVALID_CREDENTIALS`, the same message in both cases, and no token. |
-| AC-01-03 | When the e-mail is missing or malformed or the password is empty, then the response is `400 VALIDATION_ERROR` with `details` naming the field. |
+| AC-01-02 | When the password is wrong **or** the e-mail does not exist, then the response is `401` with code `INVALID_CREDENTIALS`, the same message in both cases, and no token; the password check runs in both cases so timing does not reveal whether the account exists. |
+| AC-01-03 | When the e-mail is missing or malformed, or the password is empty or longer than 72 bytes, then the response is `400 VALIDATION_ERROR` with `details` naming the field. |
 | AC-01-04 | Given a valid token, `GET /api/auth/me` returns `200` with the user. Without a token, with a random token, or with an expired token it returns `401 UNAUTHENTICATED` and no user data. |
 | AC-01-05 | Given a valid token, `POST /api/auth/logout` returns `204`, and the same token then gets `401` on `/api/auth/me`. |
 | AC-01-06 | Seeded passwords are stored as bcrypt hashes that differ from the plaintext and verify correctly. |
@@ -101,13 +103,14 @@ Login is public. `/me` and `/logout` need a valid session. Role checks are in F-
 | TEST-01-01 | AC-01-01 | API | `tests/api/auth.test.ts` › "logs in with valid credentials" | Seeded `borrower1` | POST login | 200; `token` is a non-empty string; `user.role` = `BORROWER`; body JSON has no key matching `/password/i` |
 | TEST-01-02 | AC-01-02 | API | › "rejects wrong password" | Seeded `borrower1`, password `wrong` | POST login | 401; `error.code` = `INVALID_CREDENTIALS`; no `token`; no new Session row |
 | TEST-01-03 | AC-01-02 | API | › "rejects unknown e-mail with same message" | `nobody@lendlab.test` | POST login | 401; same `error.message` as TEST-01-02 |
-| TEST-01-04 | AC-01-03 | API | › "validates login input" (table-driven) | `{}`, `{email:"abc"}`, `{email:"a@b.c", password:""}` | POST login | 400 `VALIDATION_ERROR`; `details[].field` contains `email` or `password` |
+| TEST-01-04 | AC-01-03 | API | › "validates login input" (table-driven) | `{}`, `{email:"abc"}`, `{email:"a@b.c", password:""}`, password of 73 ASCII chars, password of 25 Thai chars (75 bytes) | POST login | 400 `VALIDATION_ERROR`; `details[].field` contains `email` or `password` |
 | TEST-01-05 | AC-01-04 | API | › "me requires a valid session" | (a) valid token (b) none (c) `Bearer xyz` (d) session with `expiresAt` in the past | GET /me | (a) 200 with user (b)(c)(d) 401 `UNAUTHENTICATED`, body has no `user` |
 | TEST-01-06 | AC-01-05 | API | › "logout revokes the token" | Valid token | POST logout, then GET /me | 204, then 401; Session row has `revokedAt` set |
 | TEST-01-07 | AC-01-04 | Unit | `tests/unit/session.test.ts` › "isSessionValid" | Sessions: valid, revoked, expired by 1 s, expires in 1 s | Call function | true, false, false, true |
 | TEST-01-08 | AC-01-06 | Unit | `tests/unit/password.test.ts` | Plain `Secret123!` | `hashPassword`, `verifyPassword` | Hash ≠ plain, starts with `$2`; verify(correct) = true; verify(wrong) = false |
 | TEST-01-09 | AC-01-07 | API | `tests/api/auth.test.ts` › "inactive user cannot log in" | User with `isActive=false` | POST login | 401 `INVALID_CREDENTIALS` |
 | TEST-01-10 | AC-01-08 | E2E | `client/e2e/auth.spec.ts` | Seeded DB, app running | Visit `/my` → sign in as borrower1 → check header → Sign out | Redirected to `/login`; after sign-in URL is `/catalog` and header shows "Borrower One" and "Borrower"; after sign out URL is `/login` |
+| TEST-01-11 | AC-01-02 | Unit | `tests/unit/authService.test.ts` › "runs bcrypt even when the e-mail is unknown" | Spy on `verifyPassword`; user lookup returns null | Call `login('nobody@lendlab.test', 'x')` | Throws `INVALID_CREDENTIALS`; `verifyPassword` was called exactly once (with the dummy hash) |
 
 ## 10. Definition of Done
 
