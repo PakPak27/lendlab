@@ -8,6 +8,7 @@ import { healthRouter } from './routes/health.js';
 import { authRouter } from './routes/auth.js';
 import { authenticate } from './middleware/authenticate.js';
 import { requireRole } from './middleware/requireRole.js';
+import { custodianRouter } from './routes/custodian.js';
 import { apiNotFound, errorHandler } from './middleware/errorHandler.js';
 
 // Builds the Express app without starting it, so tests can import it.
@@ -41,7 +42,8 @@ export function createApp() {
   app.use('/api/items', authenticate);
   app.use('/api/requests', authenticate, requireRole('BORROWER')); // BR-07: custodians cannot create or read borrower requests
   app.use('/api/custodian', authenticate, requireRole('CUSTODIAN')); // BR-07: borrowers cannot use custodian operations
-  // Remaining feature routers are added here by Issues #5-#8.
+  app.use('/api/custodian', custodianRouter);
+  // F-03 (catalog) and F-04 (borrow requests) routers are added here by Issues #6 and #7.
 
   app.use('/api', apiNotFound);
 
