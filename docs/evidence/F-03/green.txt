@@ -1,0 +1,130 @@
+﻿
+> server@0.1.0 test:unit
+> vitest run tests/unit
+
+
+ RUN  v2.1.9 D:/Study/Year 3-1/CPE334/LAB/LAB 5/lendlab/server
+
+ ✓ tests/unit/errorHandler.test.ts (5 tests) 8ms
+ ✓ tests/unit/authService.test.ts (2 tests) 6ms
+ ✓ tests/unit/session.test.ts (6 tests) 7ms
+ ✓ tests/unit/requireRole.test.ts (4 tests) 5ms
+ ✓ tests/unit/config.test.ts (4 tests) 6ms
+ ✓ tests/unit/scope.test.ts (3 tests) 3ms
+ ✓ tests/unit/errors.test.ts (2 tests) 6ms
+ ✓ tests/unit/password.test.ts (2 tests) 277ms
+
+ Test Files  8 passed (8)
+      Tests  28 passed (28)
+   Start at  01:42:41
+   Duration  2.97s (transform 142ms, setup 0ms, collect 444ms, tests 316ms, environment 1ms, prepare 844ms)
+
+
+> server@0.1.0 test:api
+> npm run db:test:prepare && dotenv -e .env.test -- vitest run tests/api
+
+
+> server@0.1.0 db:test:prepare
+> dotenv -e .env.test -- prisma migrate deploy
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "lendlab_test", schema "public" at "localhost:5432"
+
+2 migrations found in prisma/migrations
+
+
+No pending migrations to apply.
+
+ RUN  v2.1.9 D:/Study/Year 3-1/CPE334/LAB/LAB 5/lendlab/server
+
+ ✓ tests/api/auth.test.ts (29 tests) 5615ms
+   ✓ POST /api/auth/login > logs in with valid credentials (TEST-01-01 / AC-01-01) 384ms
+   ✓ seeded passwords (AC-01-06) > are bcrypt hashes that differ from the plaintext and verify correctly 381ms
+ ✓ tests/api/items.test.ts (17 tests) 615ms
+ ✓ tests/api/access.test.ts (17 tests) 3380ms
+   ✓ borrower cannot use custodian operations (TEST-02-02 / AC-02-02) > gets 403 on the queue and on checkout, and nothing changes 344ms
+   ✓ enforcement order (design section 2) > answers 403 before validating the body: a forbidden role learns nothing about the input rules 309ms
+ ✓ tests/api/constraints.test.ts (8 tests) 1483ms
+   ✓ BR-02 one open commitment per item (database constraints) > DB allows one pending request per item 376ms
+ ✓ tests/api/health.test.ts (10 tests) 610ms
+ ✓ tests/api/categories.test.ts (2 tests) 291ms
+
+ Test Files  6 passed (6)
+      Tests  83 passed (83)
+   Start at  01:42:47
+   Duration  16.05s (transform 216ms, setup 0ms, collect 2.14s, tests 11.99s, environment 2ms, prepare 816ms)
+
+
+> client@0.1.0 test
+> vitest run
+
+
+ RUN  v2.1.9 D:/Study/Year 3-1/CPE334/LAB/LAB 5/lendlab/client
+
+ ✓ src/components/SystemStatus.test.tsx (3 tests) 211ms
+node.exe : stderr | src/auth/access.test.tsx > role-aware 
+navigation > a borrower sees Catalog and My Borrowing, and no 
+Requests link
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~
+    + CategoryInfo          : NotSpecified: (stderr | src/au...o Re 
+   quests link:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+⚠️ React Router Future Flag Warning: React Router will begin 
+wrapping state updates in `React.startTransition` in v7. You can 
+use the `v7_startTransition` future flag to opt-in early. For more 
+information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution 
+within Splat routes is changing in v7. You can use the 
+`v7_relativeSplatPath` future flag to opt-in early. For more 
+information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stderr | src/pages/CatalogPage.test.tsx > catalog states 
+(TEST-03-06) > shows "Loading catalog…" while the request is pending
+⚠️ React Router Future Flag Warning: React Router will begin 
+wrapping state updates in `React.startTransition` in v7. You can 
+use the `v7_startTransition` future flag to opt-in early. For more 
+information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution 
+within Splat routes is changing in v7. You can use the 
+`v7_relativeSplatPath` future flag to opt-in early. For more 
+information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stderr | src/pages/LoginPage.test.tsx > protected routes > 
+redirects to /login when there is no token (opening /my signed out)
+⚠️ React Router Future Flag Warning: React Router will begin 
+wrapping state updates in `React.startTransition` in v7. You can 
+use the `v7_startTransition` future flag to opt-in early. For more 
+information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution 
+within Splat routes is changing in v7. You can use the 
+`v7_relativeSplatPath` future flag to opt-in early. For more 
+information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/auth/access.test.tsx (5 tests) 413ms
+ ✓ src/pages/CatalogPage.test.tsx (7 tests) 858ms
+   ✓ catalog states (TEST-03-06) > shows the server message and a Retry button on error, and Retry loads again 304ms
+ ✓ src/pages/LoginPage.test.tsx (9 tests) 4275ms
+   ✓ login form > has labelled fields and disables Sign in while submitting 679ms
+   ✓ login form > shows a red alert for wrong credentials (401) and stores no token 603ms
+   ✓ login form > shows the network error message when the server cannot be reached 561ms
+   ✓ after sign-in > sends a borrower to /catalog and shows their name and role badge 560ms
+   ✓ after sign-in > sends a custodian to /custodian/requests 622ms
+   ✓ after sign-in > Sign out calls the logout endpoint, clears the token and returns to /login 683ms
+
+ Test Files  4 passed (4)
+      Tests  24 passed (24)
+   Start at  01:43:04
+   Duration  8.22s (transform 442ms, setup 1.34s, collect 2.40s, tests 5.76s, environment 8.24s, prepare 1.49s)
+
