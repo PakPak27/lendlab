@@ -101,25 +101,25 @@ export default function CatalogPage() {
 
       {state.kind === 'loaded' && state.items.length > 0 && (
         <div className="catalog-list">
-          <div className="catalog-head d-none d-sm-grid text-secondary small fw-semibold border-bottom pb-2">
-            <span>Asset tag</span>
-            <span>Item</span>
-            <span>Category</span>
-            <span>Location</span>
-            <span>Status</span>
-            {isBorrower && <span className="visually-hidden">Action</span>}
+          <div className="catalog-head text-secondary small fw-semibold border-bottom pb-2">
+            <span className="catalog-tag">Asset tag</span>
+            <span className="catalog-name">Item</span>
+            <span className="catalog-cat">Category</span>
+            <span className="catalog-loc">Location</span>
+            <span className="catalog-status">Status</span>
+            {isBorrower && <span className="catalog-action visually-hidden">Action</span>}
           </div>
           {state.items.map((item) => (
             <div key={item.id} data-testid="catalog-item" className="catalog-row border-bottom py-2">
-              <span className="fw-semibold font-monospace">{item.assetTag}</span>
-              <span>{item.name}</span>
-              <span className="text-secondary">{item.category.name}</span>
-              <span className="text-secondary">{item.location.name}</span>
-              <span>
+              <span className="catalog-tag fw-semibold font-monospace">{item.assetTag}</span>
+              <span className="catalog-name">{item.name}</span>
+              <span className="catalog-cat text-secondary">{item.category.name}</span>
+              <span className="catalog-loc text-secondary">{item.location.name}</span>
+              <span className="catalog-status">
                 <StatusBadge status={item.status} />
               </span>
               {isBorrower && (
-                <span className="text-sm-end">
+                <span className="catalog-action">
                   <RequestControl item={item} />
                 </span>
               )}
