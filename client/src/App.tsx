@@ -1,8 +1,33 @@
-import { Link, Navigate, Route, Routes } from 'react-router-dom';
+import { Link, Navigate, NavLink, Route, Routes } from 'react-router-dom';
 import { homePathFor, useAuth } from './auth/AuthContext';
 import ProtectedRoute from './auth/ProtectedRoute';
+import ForbiddenPage from './pages/ForbiddenPage';
 import LoginPage from './pages/LoginPage';
 import { CatalogPlaceholder, CustodianRequestsPlaceholder, MyBorrowingPlaceholder } from './pages/Placeholders';
+
+// Role-aware navigation (F-02): borrowers see Catalog and My Borrowing, custodians see Requests.
+function NavLinks() {
+  const { user } = useAuth();
+  if (!user) return null;
+  const links =
+    user.role === 'CUSTODIAN'
+      ? [{ to: '/custodian/requests', label: 'Requests' }]
+      : [
+          { to: '/catalog', label: 'Catalog' },
+          { to: '/my', label: 'My Borrowing' },
+        ];
+  return (
+    <ul className="navbar-nav me-auto">
+      {links.map((l) => (
+        <li className="nav-item" key={l.to}>
+          <NavLink className="nav-link" to={l.to}>
+            {l.label}
+          </NavLink>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function Header() {
   const { user, signOut } = useAuth();
@@ -12,6 +37,7 @@ function Header() {
         <Link className="navbar-brand fw-bold" to={user ? homePathFor(user.role) : '/login'}>
           LendLab
         </Link>
+        <NavLinks />
         {user && (
           <div className="d-flex align-items-center gap-2 text-white">
             <span>{user.name}</span>
@@ -26,7 +52,6 @@ function Header() {
   );
 }
 
-// App shell. Role-aware navigation and the /forbidden page are added by F-02.
 export default function App() {
   const { user, loading } = useAuth();
   return (
@@ -39,12 +64,31 @@ export default function App() {
             path="/"
             element={loading ? null : <Navigate to={user ? homePathFor(user.role) : '/login'} replace />}
           />
-          <Route path="/catalog" element={<ProtectedRoute><CatalogPlaceholder /></ProtectedRoute>} />
-          <Route path="/my" element={<ProtectedRoute><MyBorrowingPlaceholder /></ProtectedRoute>} />
+          <Route
+            path="/catalog"
+            element={
+              <ProtectedRoute roles={['BORROWER', 'CUSTODIAN']}>
+                <CatalogPlaceholder />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my"
+            element={
+              <ProtectedRoute roles={['BORROWER']}>
+                <MyBorrowingPlaceholder />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/custodian/requests"
-            element={<ProtectedRoute><CustodianRequestsPlaceholder /></ProtectedRoute>}
+            element={
+              <ProtectedRoute roles={['CUSTODIAN']}>
+                <CustodianRequestsPlaceholder />
+              </ProtectedRoute>
+            }
           />
+          <Route path="/forbidden" element={<ProtectedRoute><ForbiddenPage /></ProtectedRoute>} />
           <Route
             path="*"
             element={
