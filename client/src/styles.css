@@ -13,3 +13,40 @@ body {
   font-weight: 600;
   letter-spacing: 0.02em;
 }
+
+/* F-03 catalog (system SDS section 3, NFR-08): stacked cards on narrow screens,
+   one table-like row from 768 px. minmax(0, ...) lets text columns shrink and wrap
+   instead of pushing the Request button off the screen. */
+.catalog-head {
+  display: none;
+}
+
+.catalog-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'tag status action'
+    'name name name'
+    'cat loc loc';
+  column-gap: 0.75rem;
+  row-gap: 0.25rem;
+  align-items: center;
+}
+
+.catalog-tag { grid-area: tag; }
+.catalog-name { grid-area: name; }
+.catalog-cat { grid-area: cat; }
+.catalog-loc { grid-area: loc; }
+.catalog-status { grid-area: status; }
+.catalog-action { grid-area: action; justify-self: end; }
+
+@media (min-width: 768px) {
+  .catalog-head,
+  .catalog-row {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 2fr) minmax(0, 1.4fr) minmax(0, 1.4fr) 7rem 5.5rem;
+    grid-template-areas: 'tag name cat loc status action';
+    column-gap: 0.75rem;
+    align-items: center;
+  }
+}

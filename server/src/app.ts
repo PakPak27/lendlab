@@ -6,6 +6,8 @@ import cors from 'cors';
 import { getConfig } from './config.js';
 import { healthRouter } from './routes/health.js';
 import { authRouter } from './routes/auth.js';
+import { categoriesRouter } from './routes/categories.js';
+import { itemsRouter } from './routes/items.js';
 import { authenticate } from './middleware/authenticate.js';
 import { requireRole } from './middleware/requireRole.js';
 import { custodianRouter } from './routes/custodian.js';
@@ -36,14 +38,18 @@ export function createApp() {
   // --- API routes ---
   app.use('/api', healthRouter);
   app.use('/api', authRouter);
+  app.use('/api', categoriesRouter); // public (AC-03-04)
 
   // F-02: access guards. Order is 401 (authenticate) -> 403 (role) -> 404 (record scope) -> 409 (business rule).
   // They sit in front of the feature routers below, so a feature cannot forget them.
   app.use('/api/items', authenticate);
   app.use('/api/requests', authenticate, requireRole('BORROWER')); // BR-07: custodians cannot create or read borrower requests
   app.use('/api/custodian', authenticate, requireRole('CUSTODIAN')); // BR-07: borrowers cannot use custodian operations
-  app.use('/api/custodian', custodianRouter);
-  // F-03 (catalog) and F-04 (borrow requests) routers are added here by Issues #6 and #7.
+
+  // Feature routers (each behind the guards above).
+  app.use('/api/items', itemsRouter); // F-03
+  app.use('/api/custodian', custodianRouter); // F-05
+  // F-04 (/api/requests) is added by Issue #7.
 
   app.use('/api', apiNotFound);
 

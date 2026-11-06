@@ -1,5 +1,5 @@
 // Temporary landing pages so sign-in has somewhere to go.
-// F-03 (Catalog) and F-04 (My Borrowing) replace these.
+// F-04 (My Borrowing) replaces this.
 function Placeholder({ testId, title }: { testId: string; title: string }) {
   return (
     <div data-testid={testId}>
@@ -9,5 +9,4 @@ function Placeholder({ testId, title }: { testId: string; title: string }) {
   );
 }
 
-export const CatalogPlaceholder = () => <Placeholder testId="page-catalog" title="Catalog" />;
 export const MyBorrowingPlaceholder = () => <Placeholder testId="page-my-borrowing" title="My Borrowing" />;
