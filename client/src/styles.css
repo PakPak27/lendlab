@@ -1,0 +1,15 @@
+/* LendLab design tokens - see docs/system-sds.md section 3 */
+:root {
+  --bs-primary: #0b5ed7;
+  --bs-primary-rgb: 11, 94, 215;
+}
+
+body {
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+.status-badge {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
