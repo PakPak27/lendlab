@@ -1,0 +1,2776 @@
+﻿
+> server@0.1.0 test:api
+> npm run db:test:prepare && dotenv -e .env.test -- vitest run tests/api
+
+
+> server@0.1.0 db:test:prepare
+> dotenv -e .env.test -- prisma migrate deploy
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "lendlab_test", schema "public" at "localhost:5432"
+
+2 migrations found in prisma/migrations
+
+
+No pending migrations to apply.
+
+ RUN  v2.1.9 D:/Study/Year 3-1/CPE334/LAB/LAB 5/lendlab/server
+
+ ✓ tests/api/auth.test.ts (29 tests) 6152ms
+   ✓ POST /api/auth/login > logs in with valid credentials (TEST-01-01 / AC-01-01) 463ms
+   ✓ POST /api/auth/login > returns the assigned location ids for a custodian 319ms
+   ✓ POST /api/auth/login > stores a hashed token, not the token itself, and a bounded expiry (NFR-04) 312ms
+   ✓ POST /api/auth/login > rejects an unknown e-mail with the same message (TEST-01-03 / AC-01-02) 315ms
+   ✓ seeded passwords (AC-01-06) > are bcrypt hashes that differ from the plaintext and verify correctly 405ms
+   ✓ POST /api/auth/logout > only revokes the calling session, not the user's other sessions 354ms
+ ❯ tests/api/items.test.ts (17 tests | 17 failed) 647ms
+   × GET /api/items > lists catalog items with category, location and status (TEST-03-01 / AC-03-01) 16ms
+     → expected 404 to be 200 // Object.is equality
+   × GET /api/items > sorts by name, then asset tag (TEST-03-01 / AC-03-01) 9ms
+     → Cannot read properties of undefined (reading 'map')
+   × GET /api/items > never reveals who has requested or borrowed an item (privacy, F-03 section 3) 15ms
+     → Cannot read properties of undefined (reading 'find')
+   × GET /api/items > hides retired items 11ms
+     → Target cannot be null or undefined.
+   × GET /api/items > is readable by a custodian too 78ms
+     → expected 404 to be 200 // Object.is equality
+   × GET /api/items?status= > returns only items with the given status (TEST-03-02 / AC-03-02) 8ms
+     → expected 404 to be 200 // Object.is equality
+   × GET /api/items?status= > filters MAINTENANCE items 8ms
+     → expected 404 to be 200 // Object.is equality
+   × GET /api/items?status= > rejects status=BROKEN with 400 VALIDATION_ERROR (TEST-03-02 / AC-03-02) 6ms
+     → expected 404 to be 400 // Object.is equality
+   × GET /api/items?status= > rejects status=RETIRED with 400 VALIDATION_ERROR (TEST-03-02 / AC-03-02) 5ms
+     → expected 404 to be 400 // Object.is equality
+   × GET /api/items?status= > rejects status=available with 400 VALIDATION_ERROR (TEST-03-02 / AC-03-02) 6ms
+     → expected 404 to be 400 // Object.is equality
+   × GET /api/items/:id > returns one item with its description (TEST-03-03 / AC-03-03) 6ms
+     → expected 404 to be 200 // Object.is equality
+   × GET /api/items/:id > answers 404 ITEM_NOT_FOUND for an unknown id (TEST-03-03 / AC-03-03) 6ms
+     → expected 'NOT_FOUND' to be 'ITEM_NOT_FOUND' // Object.is equality
+   × GET /api/items/:id > answers 404 ITEM_NOT_FOUND for a retired item 5ms
+     → expected 'NOT_FOUND' to be 'ITEM_NOT_FOUND' // Object.is equality
+   × GET /api/items/:id > rejects id=abc with 400 VALIDATION_ERROR 5ms
+     → expected 404 to be 400 // Object.is equality
+   × GET /api/items/:id > rejects id=0 with 400 VALIDATION_ERROR 5ms
+     → expected 404 to be 400 // Object.is equality
+   × GET /api/items/:id > rejects id=-1 with 400 VALIDATION_ERROR 6ms
+     → expected 404 to be 400 // Object.is equality
+   × GET /api/items/:id > rejects id=1.5 with 400 VALIDATION_ERROR 5ms
+     → expected 404 to be 400 // Object.is equality
+ ✓ tests/api/access.test.ts (17 tests) 3596ms
+   ✓ borrower cannot use custodian operations (TEST-02-02 / AC-02-02) > gets 403 on the queue and on checkout, and nothing changes 329ms
+   ✓ custodian cannot create or read borrow requests (TEST-02-03 / AC-02-03) > gets 403 on POST /api/requests, and no request is created 311ms
+ ✓ tests/api/constraints.test.ts (8 tests) 1608ms
+   ✓ BR-02 one open commitment per item (database constraints) > DB allows one pending request per item 512ms
+ ✓ tests/api/health.test.ts (10 tests) 625ms
+ ❯ tests/api/categories.test.ts (2 tests | 2 failed) 267ms
+   × GET /api/categories > is public and returns a non-empty plain array (TEST-03-04 / AC-03-04) 45ms
+     → expected 404 to be 200 // Object.is equality
+   × GET /api/categories > returns id and name only, sorted by name 8ms
+     → expected { error: { code: 'NOT_FOUND', …(1) } } to deeply equal [ { id: Any<Number>, …(1) }, …(3) ]
+
+node.exe : ⎯⎯⎯⎯⎯⎯ Failed Tests 19 ⎯⎯⎯⎯⎯⎯⎯
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
+    + CategoryInfo          : NotSpecified: (⎯⎯⎯⎯⎯⎯ Failed Tests 1 
+   9 ⎯⎯⎯⎯⎯⎯⎯:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+ FAIL  tests/api/categories.test.ts > GET /api/categories > is 
+public and returns a non-empty plain array (TEST-03-04 / AC-03-04)
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/api/categories.test.ts:21:24
+     19|     const res = await request(app).get('/api/categories');
+     20| 
+     21|     expect(res.status).toBe(200);
+       |                        ^
+     22|     expect(Array.isArray(res.body)).toBe(true);
+     23|     expect(res.body.length).toBeGreaterThanOrEqual(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/19]⎯
+
+ FAIL  tests/api/categories.test.ts > GET /api/categories > 
+returns id and name only, sorted by name
+AssertionError: expected { error: { code: 'NOT_FOUND', …(1) } } to 
+deeply equal [ { id: Any<Number>, …(1) }, …(3) ]
+
+- Expected: 
+Array [
+  Object {
+    "id": Any<Number>,
+    "name": "Camera",
+  },
+  Object {
+    "id": Any<Number>,
+    "name": "Laptop",
+  },
+  Object {
+    "id": Any<Number>,
+    "name": "Microcontroller Kit",
+  },
+  Object {
+    "id": Any<Number>,
+    "name": "Projector",
+  },
+]
+
++ Received: 
+Object {
+  "error": Object {
+    "code": "NOT_FOUND",
+    "message": "API endpoint not found.",
+  },
+}
+
+ ❯ tests/api/categories.test.ts:29:22
+     27|     const res = await request(app).get('/api/categories');
+     28| 
+     29|     expect(res.body).toEqual([
+       |                      ^
+     30|       { id: expect.any(Number), name: 'Camera' },
+     31|       { id: expect.any(Number), name: 'Laptop' },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/19]⎯
+
+ FAIL  tests/api/items.test.ts > GET /api/items > lists catalog 
+items with category, location and status (TEST-03-01 / AC-03-01)
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/api/items.test.ts:29:24
+     27|     const res = await get('/api/items');
+     28| 
+     29|     expect(res.status).toBe(200);
+       |                        ^
+     30|     expect(res.body.items).toHaveLength(10);
+     31|     for (const item of res.body.items) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/19]⎯
+
+ FAIL  tests/api/items.test.ts > GET /api/items > sorts by name, 
+then asset tag (TEST-03-01 / AC-03-01)
+TypeError: Cannot read properties of undefined (reading 'map')
+ ❯ tests/api/items.test.ts:45:33
+     43|   it('sorts by name, then asset tag (TEST-03-01 / 
+AC-03-01)', async ()…
+     44|     const res = await get('/api/items');
+     45|     const keys = res.body.items.map((i: { name: string; 
+assetTag: stri…
+       |                                 ^
+     46|     const sorted = [...keys].sort((a, b) => 
+a[0].localeCompare(b[0]) |…
+     47| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/19]⎯
+
+ FAIL  tests/api/items.test.ts > GET /api/items > never reveals 
+who has requested or borrowed an item (privacy, F-03 section 3)
+TypeError: Cannot read properties of undefined (reading 'find')
+ ❯ tests/api/items.test.ts:64:27
+     62|     const body = JSON.stringify(res.body);
+     63| 
+     64|     expect(res.body.items.find((i: { assetTag: string }) 
+=> i.assetTag…
+       |                           ^
+     65|     expect(body).not.toMatch(/borrower|Borrower 
+Two|requests|loans|pur…
+     66| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/19]⎯
+
+ FAIL  tests/api/items.test.ts > GET /api/items > hides retired 
+items
+AssertionError: Target cannot be null or undefined.
+ ❯ tests/api/items.test.ts:76:28
+     74|     const res = await get('/api/items');
+     75| 
+     76|     expect(res.body.items).toHaveLength(9);
+       |                            ^
+     77|     expect(res.body.items.map((i: { assetTag: string }) 
+=> i.assetTag)…
+     78| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/19]⎯
+
+ FAIL  tests/api/items.test.ts > GET /api/items > is readable by a 
+custodian too
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/api/items.test.ts:88:24
+     86|     const res = await 
+request(app).get('/api/items').set('Authorizatio…
+     87| 
+     88|     expect(res.status).toBe(200);
+       |                        ^
+     89|     expect(res.body.items).toHaveLength(10);
+     90|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/19]⎯
+
+ FAIL  tests/api/items.test.ts > GET /api/items?status= > returns 
+only items with the given status (TEST-03-02 / AC-03-02)
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/api/items.test.ts:97:24
+     95|     const res = await get('/api/items?status=AVAILABLE');
+     96| 
+     97|     expect(res.status).toBe(200);
+       |                        ^
+     98|     expect(res.body.items).toHaveLength(9);
+     99|     expect(res.body.items.every((i: { status: string }) 
+=> i.status ==…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/19]⎯
+
+ FAIL  tests/api/items.test.ts > GET /api/items?status= > filters 
+MAINTENANCE items
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+ Test Files  2 failed | 4 passed (6)
+      Tests  19 failed | 64 passed (83)
+   Start at  01:38:17
+   Duration  16.92s (transform 218ms, setup 0ms, collect 2.22s, tests 12.90s, environment 2ms, prepare 654ms)
+
+
+- 200
++ 404
+
+ ❯ tests/api/items.test.ts:106:24
+    104|     const res = await 
+get('/api/items?status=MAINTENANCE');
+    105| 
+    106|     expect(res.status).toBe(200);
+       |                        ^
+    107|     expect(res.body.items.map((i: { assetTag: string }) 
+=> i.assetTag)…
+    108|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/19]⎯
+
+ FAIL  tests/api/items.test.ts > GET /api/items?status= > rejects 
+status=BROKEN with 400 VALIDATION_ERROR (TEST-03-02 / AC-03-02)
+ FAIL  tests/api/items.test.ts > GET /api/items?status= > rejects 
+status=RETIRED with 400 VALIDATION_ERROR (TEST-03-02 / AC-03-02)
+ FAIL  tests/api/items.test.ts > GET /api/items?status= > rejects 
+status=available with 400 VALIDATION_ERROR (TEST-03-02 / AC-03-02)
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/api/items.test.ts:115:26
+    113|       const res = await 
+get(`/api/items?status=${status}`);
+    114| 
+    115|       expect(res.status).toBe(400);
+       |                          ^
+    116|       
+expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    117|       
+expect(res.body.error.details[0].field).toBe('status');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/19]⎯
+
+ FAIL  tests/api/items.test.ts > GET /api/items/:id > returns one 
+item with its description (TEST-03-03 / AC-03-03)
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/api/items.test.ts:128:24
+    126|     const res = await get(`/api/items/${lap.id}`);
+    127| 
+    128|     expect(res.status).toBe(200);
+       |                        ^
+    129|     expect(res.body.item).toMatchObject({
+    130|       id: lap.id,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/19]⎯
+
+ FAIL  tests/api/items.test.ts > GET /api/items/:id > answers 404 
+ITEM_NOT_FOUND for an unknown id (TEST-03-03 / AC-03-03)
+AssertionError: expected 'NOT_FOUND' to be 'ITEM_NOT_FOUND' // 
+Object.is equality
+
+Expected: "ITEM_NOT_FOUND"
+Received: "NOT_FOUND"
+
+ ❯ tests/api/items.test.ts:144:33
+    142| 
+    143|     expect(res.status).toBe(404);
+    144|     expect(res.body.error.code).toBe('ITEM_NOT_FOUND');
+       |                                 ^
+    145|     expect(res.body.item).toBeUndefined();
+    146|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/19]⎯
+
+ FAIL  tests/api/items.test.ts > GET /api/items/:id > answers 404 
+ITEM_NOT_FOUND for a retired item
+AssertionError: expected 'NOT_FOUND' to be 'ITEM_NOT_FOUND' // 
+Object.is equality
+
+Expected: "ITEM_NOT_FOUND"
+Received: "NOT_FOUND"
+
+ ❯ tests/api/items.test.ts:154:33
+    152| 
+    153|     expect(res.status).toBe(404);
+    154|     expect(res.body.error.code).toBe('ITEM_NOT_FOUND');
+       |                                 ^
+    155| 
+    156|     await prisma.item.update({ where: { id: prj.id }, 
+data: { status: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/19]⎯
+
+ FAIL  tests/api/items.test.ts > GET /api/items/:id > rejects 
+id=abc with 400 VALIDATION_ERROR
+ FAIL  tests/api/items.test.ts > GET /api/items/:id > rejects id=0 
+with 400 VALIDATION_ERROR
+ FAIL  tests/api/items.test.ts > GET /api/items/:id > rejects 
+id=-1 with 400 VALIDATION_ERROR
+ FAIL  tests/api/items.test.ts > GET /api/items/:id > rejects 
+id=1.5 with 400 VALIDATION_ERROR
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/api/items.test.ts:162:24
+    160|     const res = await get(`/api/items/${id}`);
+    161| 
+    162|     expect(res.status).toBe(400);
+       |                        ^
+    163|     expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    164|     expect(res.body.error.details[0].field).toBe('id');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/19]⎯
+
+npm error Lifecycle script `test:api` failed with error:
+npm error code 1
+npm error path D:\Study\Year 3-1\CPE334\LAB\LAB 5\lendlab\server
+npm error workspace server@0.1.0
+npm error location D:\Study\Year 3-1\CPE334\LAB\LAB 
+5\lendlab\server
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c npm run 
+db:test:prepare && dotenv -e .env.test -- vitest run tests/api
+
+> client@0.1.0 test
+> vitest run
+
+
+ RUN  v2.1.9 D:/Study/Year 3-1/CPE334/LAB/LAB 5/lendlab/client
+
+node.exe : stderr | src/auth/access.test.tsx > role-aware 
+navigation > a borrower sees Catalog and My Borrowing, and no 
+Requests link
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~
+    + CategoryInfo          : NotSpecified: (stderr | src/au...o Re 
+   quests link:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+⚠️ React Router Future Flag Warning: React Router will begin 
+wrapping state updates in `React.startTransition` in v7. You can 
+use the `v7_startTransition` future flag to opt-in early. For more 
+information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution 
+within Splat routes is changing in v7. You can use the 
+`v7_relativeSplatPath` future flag to opt-in early. For more 
+information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/components/SystemStatus.test.tsx (3 tests) 352ms
+stderr | src/pages/CatalogPage.test.tsx > catalog states 
+(TEST-03-06) > shows "Loading catalog…" while the request is pending
+⚠️ React Router Future Flag Warning: React Router will begin 
+wrapping state updates in `React.startTransition` in v7. You can 
+use the `v7_startTransition` future flag to opt-in early. For more 
+information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution 
+within Splat routes is changing in v7. You can use the 
+`v7_relativeSplatPath` future flag to opt-in early. For more 
+information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stderr | src/pages/LoginPage.test.tsx > protected routes > 
+redirects to /login when there is no token (opening /my signed out)
+⚠️ React Router Future Flag Warning: React Router will begin 
+wrapping state updates in `React.startTransition` in v7. You can 
+use the `v7_startTransition` future flag to opt-in early. For more 
+information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution 
+within Splat routes is changing in v7. You can use the 
+`v7_relativeSplatPath` future flag to opt-in early. For more 
+information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/auth/access.test.tsx (5 tests) 452ms
+ ✓ src/pages/LoginPage.test.tsx (9 tests) 4534ms
+   ✓ login form > has labelled fields and disables Sign in while submitting 689ms
+   ✓ login form > shows a red alert for wrong credentials (401) and stores no token 732ms
+   ✓ login form > shows the network error message when the server cannot be reached 597ms
+   ✓ after sign-in > sends a borrower to /catalog and shows their name and role badge 622ms
+   ✓ after sign-in > sends a custodian to /custodian/requests 636ms
+   ✓ after sign-in > Sign out calls the logout endpoint, clears the token and returns to /login 686ms
+ ❯ src/pages/CatalogPage.test.tsx (7 tests | 7 failed) 7176ms
+   × catalog states (TEST-03-06) > shows "Loading catalog…" while the request is pending 1101ms
+     → Unable to find an element with the text: Loading catalog…. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+   × catalog states (TEST-03-06) > shows the empty message when no item matches 1007ms
+     → Unable to find an element with the text: No items match this filter.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+   × catalog states (TEST-03-06) > shows the server message and a Retry button on error, and Retry loads again 1014ms
+     → Unable to find an element with the text: An unexpected error occurred.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+   × catalog list for a borrower (AC-03-05) > shows asset tag, name, category, location and the status as text 1009ms
+     → Unable to find an element with the text: LAP-001. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<nav[39m
+        [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+        [33mdata-bs-theme[39m=[32m"dark"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"container"[39m
+        [36m>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+            [33mhref[39m=[32m"/catalog"[39m
+          [36m>[39m
+            [0mLendLab[0m
+          [36m</a>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"navbar-nav me-auto"[39m
+          [36m>[39m
+            [36m<li[39m
+              [33mclass[39m=[32m"nav-item"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"nav-link active"[39m
+                [33mhref[39m=[32m"/catalog"[39m
+              [36m>[39m
+                [0mCatalog[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li[39m
+              [33mclass[39m=[32m"nav-item"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"nav-link"[39m
+                [33mhref[39m=[32m"/my"[39m
+              [36m>[39m
+                [0mMy Borrowing[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"d-flex align-items-center gap-2 text-white"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mBorrower One[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"badge text-bg-light"[39m
+            [36m>[39m
+              [0mBorrower[0m
+            [36m</span>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mSign out[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</nav>[39m
+      [36m<main[39m
+        [33mclass[39m=[32m"container py-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mdata-testid[39m=[32m"page-catalog"[39m
+        [36m>[39m
+          [36m<h1[39m
+            [33mclass[39m=[32m"h3"[39m
+          [36m>[39m
+            [0mCatalog[0m
+          [36m</h1>[39m
+        [36m</div>[39m
+      [36m</main>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × catalog list for a borrower (AC-03-05) > enables Request only for Available items and links it to the request form 1018ms
+     → Unable to find an element with the text: LAP-001. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+   × catalog for a custodian > shows the items but no Request controls 1015ms
+     → Unable to find an element with the text: LAP-001. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/custodian/requests"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/custodian/requests"[39m
+            [36m>[39m
+              [0mRequests[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mHardware Lab Custodian[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mCustodian[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/custodian/requests"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/custodian/requests"[39m
+            [36m>[39m
+              [0mRequests[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mHardware Lab Custodian[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mCustodian[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+   × status filter (AC-03-02 in the UI) > reloads with ?status= when a status is chosen, and without it for "All" 1006ms
+     → Unable to find an element with the text: LAP-001. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/CatalogPage.test.tsx > catalog states (TEST-03-06) 
+> shows "Loading catalog…" while the request is pending
+TestingLibraryElementError: Unable to find an element with the 
+text: Loading catalog…. This could be because the text is broken up 
+by multiple elements. In this case, you can provide a function for 
+your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 
+text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 
+text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper 
+../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/CatalogPage.test.tsx:53:25
+     51|     mockApi(borrower, () => new Promise<Response>(() => 
+{}));
+     52|     renderCatalog();
+     53|     expect(await screen.findByText('Loading 
+catalog…')).toBeInTheDocum…
+       |                         ^
+     54|   });
+     55| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  src/pages/CatalogPage.test.tsx > catalog states (TEST-03-06) 
+> shows the empty message when no item matches
+TestingLibraryElementError: Unable to find an element with the 
+text: No items match this filter.. This could be because the text 
+is broken up by multiple elements. In this case, you can provide a 
+function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 
+text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 
+text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper 
+../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/CatalogPage.test.tsx:59:25
+     57|     mockApi(borrower, () => json(200, { items: [] }));
+     58|     renderCatalog();
+     59|     expect(await screen.findByText('No items match this 
+filter.')).toB…
+       |                         ^
+     60|   });
+     61| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  src/pages/CatalogPage.test.tsx > catalog states (TEST-03-06) 
+> shows the server message and a Retry button on error, and Retry 
+loads again
+TestingLibraryElementError: Unable to find an element with the 
+text: An unexpected error occurred.. This could be because the text 
+is broken up by multiple elements. In this case, you can provide a 
+function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 
+text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 
+text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper 
+../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/CatalogPage.test.tsx:72:25
+     70|     renderCatalog();
+     71| 
+     72|     expect(await screen.findByText('An unexpected error 
+occurred.')).t…
+       |                         ^
+     73|     await 
+userEvent.setup().click(screen.getByRole('button', { name: '…
+     74|     expect(await 
+screen.findByText('LAP-001')).toBeInTheDocument();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  src/pages/CatalogPage.test.tsx > catalog list for a borrower 
+(AC-03-05) > shows asset tag, name, category, location and the 
+status as text
+TestingLibraryElementError: Unable to find an element with the 
+text: LAP-001. This could be because the text is broken up by 
+multiple elements. In this case, you can provide a function for 
+your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 
+text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<nav[39m
+        [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+        [33mdata-bs-theme[39m=[32m"dark"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"container"[39m
+        [36m>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+            [33mhref[39m=[32m"/catalog"[39m
+          [36m>[39m
+            [0mLendLab[0m
+          [36m</a>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"navbar-nav me-auto"[39m
+          [36m>[39m
+            [36m<li[39m
+              [33mclass[39m=[32m"nav-item"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"nav-link active"[39m
+                [33mhref[39m=[32m"/catalog"[39m
+              [36m>[39m
+                [0mCatalog[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li[39m
+              [33mclass[39m=[32m"nav-item"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"nav-link"[39m
+                [33mhref[39m=[32m"/my"[39m
+              [36m>[39m
+                [0mMy Borrowing[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"d-flex align-items-center gap-2 
+text-white"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mBorrower One[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"badge text-bg-light"[39m
+            [36m>[39m
+              [0mBorrower[0m
+            [36m</span>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"btn btn-outline-light 
+btn-sm"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mSign out[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</nav>[39m
+      [36m<main[39m
+        [33mclass[39m=[32m"container py-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mdata-testid[39m=[32m"page-catalog"[39m
+        [36m>[39m
+          [36m<h1[39m
+            [33mclass[39m=[32m"h3"[39m
+          [36m>[39m
+            [0mCatalog[0m
+          [36m</h1>[39m
+        [36m</div>[39m
+      [36m</main>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ Proxy.waitForWrapper 
+../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/pages/CatalogPage.test.tsx:83:30
+     81|     renderCatalog();
+     82| 
+     83|     const row = within(await waitFor(() => 
+rowFor('LAP-001')));
+       |                              ^
+     84|     expect(row.getByText('Dell Latitude 
+5440')).toBeInTheDocument();
+     85|     expect(row.getByText('Laptop')).toBeInTheDocument();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  src/pages/CatalogPage.test.tsx > catalog list for a borrower 
+(AC-03-05) > enables Request only for Available items and links it 
+to the request form
+TestingLibraryElementError: Unable to find an element with the 
+text: LAP-001. This could be because the text is broken up by 
+multiple elements. In this case, you can provide a function for 
+your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 
+text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 
+text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper 
+../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/CatalogPage.test.tsx:95:18
+     93|     mockApi(borrower, () => json(200, { items }));
+     94|     renderCatalog();
+     95|     await screen.findByText('LAP-001');
+       |                  ^
+     96| 
+     97|     const available = 
+within(rowFor('LAP-001')).getByRole('link', { na…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  src/pages/CatalogPage.test.tsx > catalog for a custodian > 
+shows the items but no Request controls
+TestingLibraryElementError: Unable to find an element with the 
+text: LAP-001. This could be because the text is broken up by 
+multiple elements. In this case, you can provide a function for 
+your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/custodian/requests"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/custodian/requests"[39m
+            [36m>[39m
+              [0mRequests[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 
+text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mHardware Lab Custodian[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mCustodian[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/custodian/requests"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/custodian/requests"[39m
+            [36m>[39m
+              [0mRequests[0m
+            [36m</a>[39m
+          [36m</li>[39m
+ Test Files  1 failed | 3 passed (4)
+      Tests  7 failed | 17 passed (24)
+   Start at  01:39:32
+   Duration  11.58s (transform 669ms, setup 1.94s, collect 3.58s, tests 12.51s, environment 8.37s, prepare 1.18s)
+
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 
+text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mHardware Lab Custodian[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mCustodian[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper 
+../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/CatalogPage.test.tsx:112:18
+    110|     renderCatalog();
+    111| 
+    112|     await screen.findByText('LAP-001');
+       |                  ^
+    113|     expect(screen.queryByRole('link', { name: /^Request / 
+})).not.toBe…
+    114|     expect(screen.queryByRole('button', { name: /^Request 
+/ })).not.to…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  src/pages/CatalogPage.test.tsx > status filter (AC-03-02 in 
+the UI) > reloads with ?status= when a status is chosen, and 
+without it for "All"
+TestingLibraryElementError: Unable to find an element with the 
+text: LAP-001. This could be because the text is broken up by 
+multiple elements. In this case, you can provide a function for 
+your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 
+text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33mclass[39m=[32m"navbar navbar-expand bg-primary"[39m
+      [33mdata-bs-theme[39m=[32m"dark"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"navbar-brand fw-bold"[39m
+          [33mhref[39m=[32m"/catalog"[39m
+        [36m>[39m
+          [0mLendLab[0m
+        [36m</a>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"navbar-nav me-auto"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"nav-link active"[39m
+              [33mhref[39m=[32m"/catalog"[39m
+            [36m>[39m
+              [0mCatalog[0m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"nav-item"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"nav-link"[39m
+              [33mhref[39m=[32m"/my"[39m
+            [36m>[39m
+              [0mMy Borrowing[0m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"d-flex align-items-center gap-2 
+text-white"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mBorrower One[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"badge text-bg-light"[39m
+          [36m>[39m
+            [0mBorrower[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-light btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mSign out[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</nav>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"container py-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"page-catalog"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"h3"[39m
+        [36m>[39m
+          [0mCatalog[0m
+        [36m</h1>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper 
+../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/CatalogPage.test.tsx:122:18
+    120|     const fetchSpy = mockApi(borrower, () => json(200, { 
+items }));
+    121|     renderCatalog();
+    122|     await screen.findByText('LAP-001');
+       |                  ^
+    123|     const user = userEvent.setup();
+    124| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path D:\Study\Year 3-1\CPE334\LAB\LAB 5\lendlab\client
+npm error workspace client@0.1.0
+npm error location D:\Study\Year 3-1\CPE334\LAB\LAB 5\lendlab\client
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c vitest run
