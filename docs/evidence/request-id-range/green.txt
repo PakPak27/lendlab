@@ -1,0 +1,57 @@
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ✓ tests/unit/errorHandler.test.ts (5 tests) 4ms
+ ✓ tests/unit/requestInput.test.ts (20 tests) 9ms
+ ✓ tests/unit/authService.test.ts (2 tests) 6ms
+ ✓ tests/unit/requireRole.test.ts (4 tests) 5ms
+ ✓ tests/unit/session.test.ts (6 tests) 4ms
+ ✓ tests/unit/config.test.ts (4 tests) 5ms
+ ✓ tests/unit/scope.test.ts (3 tests) 3ms
+ ✓ tests/unit/errors.test.ts (2 tests) 3ms
+ ✓ tests/unit/password.test.ts (2 tests) 272ms
+
+ Test Files  9 passed (9)
+      Tests  48 passed (48)
+   Start at  19:04:24
+   Duration  3.35s (transform 115ms, setup 0ms, collect 448ms, tests 310ms, environment 2ms, prepare 949ms)
+
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ✓ tests/api/requests.test.ts (36 tests) 16930ms
+   ✓ POST /api/requests — create and reserve > creates a request and reserves the item (TEST-04-01 / AC-04-01) 2439ms
+   ✓ BR-01 only Available items can be requested (TEST-04-02 / AC-04-02) > rejects a second request for an item that is already reserved by someone else 350ms
+   ✓ BR-02 concurrency (TEST-04-03 / AC-04-03, NFR-05) > only one of two concurrent requests for the same item succeeds 2333ms
+   ✓ BR-02 concurrency (TEST-04-03 / AC-04-03, NFR-05) > stays correct under five concurrent requests 2413ms
+   ✓ input validation (TEST-04-06 .. TEST-04-08 / AC-04-04) > rejects itemId = 99999999999 (outside the database INT range) with 400, not 500 316ms
+   ✓ GET /api/requests/mine (TEST-04-09 / AC-04-05) > returns only the caller's requests, newest first, with loan null 393ms
+   ✓ GET /api/requests/mine (TEST-04-09 / AC-04-05) > shows the loan once the request has been fulfilled 300ms
+   ✓ GET /api/requests/:id > a borrower cannot read another borrower's request: 404, no data (TEST-02-04 / AC-02-04) 364ms
+   ✓ GET /api/requests/:id > rejects id=1.5 with 400 378ms
+   ✓ GET /api/requests/:id > rejects id=99999999999 with 400 415ms
+ ✓ tests/api/auth.test.ts (29 tests) 9063ms
+   ✓ POST /api/auth/login > logs in with valid credentials (TEST-01-01 / AC-01-01) 2400ms
+   ✓ POST /api/auth/login > rejects an unknown e-mail with the same message (TEST-01-03 / AC-01-02) 333ms
+   ✓ seeded passwords (AC-01-06) > are bcrypt hashes that differ from the plaintext and verify correctly 434ms
+   ✓ POST /api/auth/logout > only revokes the calling session, not the user's other sessions 361ms
+ ✓ tests/api/items.test.ts (17 tests) 2655ms
+ ✓ tests/api/access.test.ts (17 tests) 6383ms
+   ✓ protected endpoints require a session (TEST-02-01 / AC-02-01) > list items answers 401 with only an error object 2309ms
+   ✓ borrower cannot use custodian operations (TEST-02-02 / AC-02-02) > gets 403 on the queue and on checkout, and nothing changes 352ms
+   ✓ custodian cannot create or read borrow requests (TEST-02-03 / AC-02-03) > gets 403 on POST /api/requests, and no request is created 306ms
+   ✓ custodian cannot create or read borrow requests (TEST-02-03 / AC-02-03) > gets 403 on GET /api/requests/mine 308ms
+   ✓ custodian cannot create or read borrow requests (TEST-02-03 / AC-02-03) > gets 403 on GET /api/requests/1 322ms
+   ✓ enforcement order (design section 2) > answers 403 before validating the body: a forbidden role learns nothing about the input rules 320ms
+ ✓ tests/api/constraints.test.ts (8 tests) 6342ms
+   ✓ BR-02 one open commitment per item (database constraints) > DB allows one pending request per item 4524ms
+   ✓ BR-02 one open commitment per item (database constraints) > allows a new pending request once the earlier one is no longer pending 437ms
+ ✓ tests/api/health.test.ts (10 tests) 2891ms
+   ✓ SYS-01 seed data > is idempotent: running the seed twice does not create duplicates 357ms
+ ✓ tests/api/categories.test.ts (2 tests) 2389ms
+
+ Test Files  7 passed (7)
+      Tests  119 passed (119)
+   Start at  19:04:30
+   Duration  52.01s (transform 211ms, setup 0ms, collect 3.14s, tests 46.65s, environment 1ms, prepare 808ms)
+

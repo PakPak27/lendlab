@@ -1,0 +1,156 @@
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+stderr | tests/api/requests.test.ts > input validation (TEST-04-06 .. TEST-04-08 / AC-04-04) > rejects itemId = 99999999999 (outside the database INT range) with 400, not 500
+PrismaClientUnknownRequestError: 
+Invalid `tx.item.findUnique()` invocation in
+C:\Users\sirab\lendlab\server\src\services\requestService.ts:32:34
+
+  29 export async function createRequest(user: AuthUser, input: CreateRequestInput) {
+  30   try {
+  31     return await prisma.$transaction(async (tx) => {
+→ 32       const item = await tx.item.findUnique(
+Error occurred during query execution:
+ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(Error { kind: ToSql(0), cause: Some(Error { kind: ConversionError("Unable to fit integer value '99999999999' into an INT4 (32-bit signed integer)."), original_code: None, original_message: None }) }), transient: false })
+    at $n.handleRequestError (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:121:7505)
+    at $n.handleAndLogRequestError (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:121:6623)
+    at $n.request (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:121:6307)
+    at l (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at C:\Users\sirab\lendlab\server\src\services\requestService.ts:32:20
+    at Proxy._transactionWithCallback (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:130:8000)
+    at Module.createRequest (C:\Users\sirab\lendlab\server\src\services\requestService.ts:31:12)
+    at C:\Users\sirab\lendlab\server\src\routes\requests.ts:12:21 {
+  clientVersion: '5.22.0'
+}
+
+stderr | tests/api/requests.test.ts > input validation (TEST-04-06 .. TEST-04-08 / AC-04-04) > rejects itemId = 2147483648 (outside the database INT range) with 400, not 500
+PrismaClientUnknownRequestError: 
+Invalid `tx.item.findUnique()` invocation in
+C:\Users\sirab\lendlab\server\src\services\requestService.ts:32:34
+
+  29 export async function createRequest(user: AuthUser, input: CreateRequestInput) {
+  30   try {
+  31     return await prisma.$transaction(async (tx) => {
+→ 32       const item = await tx.item.findUnique(
+Error occurred during query execution:
+ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(Error { kind: ToSql(0), cause: Some(Error { kind: ConversionError("Unable to fit integer value '2147483648' into an INT4 (32-bit signed integer)."), original_code: None, original_message: None }) }), transient: false })
+    at $n.handleRequestError (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:121:7505)
+    at $n.handleAndLogRequestError (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:121:6623)
+    at $n.request (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:121:6307)
+    at l (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at C:\Users\sirab\lendlab\server\src\services\requestService.ts:32:20
+    at Proxy._transactionWithCallback (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:130:8000)
+    at Module.createRequest (C:\Users\sirab\lendlab\server\src\services\requestService.ts:31:12)
+    at C:\Users\sirab\lendlab\server\src\routes\requests.ts:12:21 {
+  clientVersion: '5.22.0'
+}
+
+stderr | tests/api/requests.test.ts > GET /api/requests/:id > rejects id=99999999999 with 400
+PrismaClientUnknownRequestError: 
+Invalid `prisma.borrowRequest.findFirst()` invocation in
+C:\Users\sirab\lendlab\server\src\services\requestService.ts:73:46
+
+  70 
+  71 // BR-06 / decision D-06: another borrower's request is reported as not found.
+  72 export async function getMyRequest(user: AuthUser, id: number) {
+→ 73   const request = await prisma.borrowRequest.findFirst(
+Error occurred during query execution:
+ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(Error { kind: ToSql(0), cause: Some(Error { kind: ConversionError("Unable to fit integer value '99999999999' into an INT4 (32-bit signed integer)."), original_code: None, original_message: None }) }), transient: false })
+    at $n.handleRequestError (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:121:7505)
+    at $n.handleAndLogRequestError (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:121:6623)
+    at $n.request (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:121:6307)
+    at l (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at Module.getMyRequest (C:\Users\sirab\lendlab\server\src\services\requestService.ts:73:19)
+    at C:\Users\sirab\lendlab\server\src\routes\requests.ts:31:25 {
+  clientVersion: '5.22.0'
+}
+
+stderr | tests/api/requests.test.ts > GET /api/requests/:id > rejects id=2147483648 with 400
+PrismaClientUnknownRequestError: 
+Invalid `prisma.borrowRequest.findFirst()` invocation in
+C:\Users\sirab\lendlab\server\src\services\requestService.ts:73:46
+
+  70 
+  71 // BR-06 / decision D-06: another borrower's request is reported as not found.
+  72 export async function getMyRequest(user: AuthUser, id: number) {
+→ 73   const request = await prisma.borrowRequest.findFirst(
+Error occurred during query execution:
+ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(Error { kind: ToSql(0), cause: Some(Error { kind: ConversionError("Unable to fit integer value '2147483648' into an INT4 (32-bit signed integer)."), original_code: None, original_message: None }) }), transient: false })
+    at $n.handleRequestError (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:121:7505)
+    at $n.handleAndLogRequestError (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:121:6623)
+    at $n.request (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:121:6307)
+    at l (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at Module.getMyRequest (C:\Users\sirab\lendlab\server\src\services\requestService.ts:73:19)
+    at C:\Users\sirab\lendlab\server\src\routes\requests.ts:31:25 {
+  clientVersion: '5.22.0'
+}
+
+ ❯ tests/api/requests.test.ts (36 tests | 4 failed) 17102ms
+   ✓ POST /api/requests — create and reserve > creates a request and reserves the item (TEST-04-01 / AC-04-01) 2509ms
+   ✓ BR-01 only Available items can be requested (TEST-04-02 / AC-04-02) > rejects an item that is MAINTENANCE with 409 and changes nothing 322ms
+   ✓ BR-01 only Available items can be requested (TEST-04-02 / AC-04-02) > rejects an item that is RETIRED with 409 and changes nothing 303ms
+   ✓ BR-01 only Available items can be requested (TEST-04-02 / AC-04-02) > rejects the seeded Maintenance item ARD-003 (demo case) 386ms
+   ✓ BR-01 only Available items can be requested (TEST-04-02 / AC-04-02) > rejects a second request for an item that is already reserved by someone else 367ms
+   ✓ BR-02 concurrency (TEST-04-03 / AC-04-03, NFR-05) > only one of two concurrent requests for the same item succeeds 2349ms
+   ✓ BR-02 concurrency (TEST-04-03 / AC-04-03, NFR-05) > stays correct under five concurrent requests 2426ms
+   ✓ input validation (TEST-04-06 .. TEST-04-08 / AC-04-04) > loan length 1 days -> 201 (TEST-04-06) 308ms
+   ✓ input validation (TEST-04-06 .. TEST-04-08 / AC-04-04) > loan length 14 days -> 201 (TEST-04-06) 351ms
+   × input validation (TEST-04-06 .. TEST-04-08 / AC-04-04) > rejects itemId = 99999999999 (outside the database INT range) with 400, not 500 321ms
+     → expected 500 to be 400 // Object.is equality
+   × input validation (TEST-04-06 .. TEST-04-08 / AC-04-04) > rejects itemId = 2147483648 (outside the database INT range) with 400, not 500 342ms
+     → expected 500 to be 400 // Object.is equality
+   ✓ GET /api/requests/mine (TEST-04-09 / AC-04-05) > returns only the caller's requests, newest first, with loan null 395ms
+   ✓ GET /api/requests/mine (TEST-04-09 / AC-04-05) > shows the loan once the request has been fulfilled 301ms
+   ✓ GET /api/requests/:id > a borrower cannot read another borrower's request: 404, no data (TEST-02-04 / AC-02-04) 358ms
+   × GET /api/requests/:id > rejects id=99999999999 with 400 273ms
+     → expected 500 to be 400 // Object.is equality
+   × GET /api/requests/:id > rejects id=2147483648 with 400 267ms
+     → expected 500 to be 400 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/api/requests.test.ts > input validation (TEST-04-06 .. TEST-04-08 / AC-04-04) > rejects itemId = 99999999999 (outside the database INT range) with 400, not 500
+ FAIL  tests/api/requests.test.ts > input validation (TEST-04-06 .. TEST-04-08 / AC-04-04) > rejects itemId = 2147483648 (outside the database INT range) with 400, not 500
+AssertionError: expected 500 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 500
+
+ ❯ tests/api/requests.test.ts:203:24
+    201|     const res = await post(token, valid(big));
+    202| 
+    203|     expect(res.status).toBe(400);
+       |                        ^
+    204|     expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    205|     expect(res.body.error.details.map((d: { field: string }) => d.fiel…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/api/requests.test.ts > GET /api/requests/:id > rejects id=99999999999 with 400
+ FAIL  tests/api/requests.test.ts > GET /api/requests/:id > rejects id=2147483648 with 400
+AssertionError: expected 500 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 500
+
+ ❯ tests/api/requests.test.ts:338:24
+    336|       .set('Authorization', `Bearer ${await tokenFor('borrower1@lendla…
+    337| 
+    338|     expect(res.status).toBe(400);
+       |                        ^
+    339|     expect(res.body.error.details[0].field).toBe('id');
+    340|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 32 passed (36)
+   Start at  19:03:51
+   Duration  18.91s (transform 191ms, setup 0ms, collect 1.15s, tests 17.10s, environment 0ms, prepare 413ms)
+
