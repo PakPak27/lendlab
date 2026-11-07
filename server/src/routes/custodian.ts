@@ -7,8 +7,13 @@ import { checkoutRequest, listPendingRequests } from '../services/checkoutServic
 export const custodianRouter = Router();
 
 const idParams = z.object({
-  // A positive integer that fits the database INT column, so a huge id is a 400 instead of a database error.
-  id: z.coerce.number().int().positive().max(2_147_483_647),
+  // Plain digits only (no "1e3", spaces or leading zeros, same rule as the catalog and request ids), and small
+  // enough for the database INT column, so a huge id is a 400 instead of a database error.
+  id: z
+    .string()
+    .regex(/^[1-9]\d*$/, 'Request id must be a positive whole number.')
+    .transform(Number)
+    .refine((n) => n <= 2_147_483_647, 'Request id is too large.'),
 });
 
 // Sprint 1 supports PENDING only (default).

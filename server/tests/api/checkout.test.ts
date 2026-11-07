@@ -191,7 +191,7 @@ describe('POST /api/custodian/requests/:id/checkout', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
-  it.each([['abc'], ['0'], ['-3'], ['1.5'], ['99999999999']])('rejects the id %s with 400', async (id) => {
+  it.each([['abc'], ['0'], ['-3'], ['1.5'], ['99999999999'], ['1e3'], ['%205'], ['007']])('rejects the id %s with 400', async (id) => {
     const token = await tokenFor('custodian.hw@lendlab.test');
     const res = await request(app).post(`/api/custodian/requests/${id}/checkout`).set(bearer(token));
     expect(res.status).toBe(400);
