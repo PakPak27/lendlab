@@ -196,6 +196,22 @@ describe('input validation (TEST-04-06 .. TEST-04-08 / AC-04-04)', () => {
     expect(res.body.error.details[0].field).toBe('purpose');
   });
 
+  it.each([[99999999999], [2147483648]])('rejects itemId = %i (outside the database INT range) with 400, not 500', async (big) => {
+    const token = await tokenFor('borrower1@lendlab.test');
+    const res = await post(token, valid(big));
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    expect(res.body.error.details.map((d: { field: string }) => d.field)).toContain('itemId');
+    expect(await prisma.borrowRequest.count()).toBe(0);
+  });
+
+  it('accepts the largest INT itemId and answers 404 because no such item exists', async () => {
+    const token = await tokenFor('borrower1@lendlab.test');
+    const res = await post(token, valid(2147483647));
+    expect(res.status).toBe(404);
+  });
+
   it('answers 404 ITEM_NOT_FOUND for an unknown item (TEST-04-08)', async () => {
     const token = await tokenFor('borrower1@lendlab.test');
     const res = await post(token, valid(99999));
@@ -314,7 +330,7 @@ describe('GET /api/requests/:id', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
-  it.each([['abc'], ['0'], ['1.5']])('rejects id=%s with 400', async (id) => {
+  it.each([['abc'], ['0'], ['1.5'], ['99999999999'], ['2147483648']])('rejects id=%s with 400', async (id) => {
     const res = await request(app)
       .get(`/api/requests/${id}`)
       .set('Authorization', `Bearer ${await tokenFor('borrower1@lendlab.test')}`);
