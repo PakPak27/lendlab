@@ -29,3 +29,6 @@ Thumbs.db
 
 # TypeScript incremental build info
 *.tsbuildinfo
+
+# Vite dependency cache (created by the dev server; never commit)
+.vite/

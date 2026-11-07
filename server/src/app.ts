@@ -8,6 +8,7 @@ import { healthRouter } from './routes/health.js';
 import { authRouter } from './routes/auth.js';
 import { categoriesRouter } from './routes/categories.js';
 import { itemsRouter } from './routes/items.js';
+import { requestsRouter } from './routes/requests.js';
 import { authenticate } from './middleware/authenticate.js';
 import { requireRole } from './middleware/requireRole.js';
 import { apiNotFound, errorHandler } from './middleware/errorHandler.js';
@@ -47,7 +48,8 @@ export function createApp() {
 
   // Feature routers (each behind the guards above).
   app.use('/api/items', itemsRouter); // F-03
-  // F-04 (/api/requests) and F-05 (/api/custodian) routers are added by Issues #7 and #8.
+  app.use('/api/requests', requestsRouter); // F-04
+  // The F-05 (/api/custodian) router is added by Issue #8.
 
   app.use('/api', apiNotFound);
 

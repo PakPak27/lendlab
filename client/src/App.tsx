@@ -4,7 +4,9 @@ import ProtectedRoute from './auth/ProtectedRoute';
 import ForbiddenPage from './pages/ForbiddenPage';
 import LoginPage from './pages/LoginPage';
 import CatalogPage from './pages/CatalogPage';
-import { CustodianRequestsPlaceholder, MyBorrowingPlaceholder } from './pages/Placeholders';
+import MyBorrowingPage from './pages/MyBorrowingPage';
+import { CustodianRequestsPlaceholder } from './pages/Placeholders';
+import RequestPage from './pages/RequestPage';
 
 // Role-aware navigation (F-02): borrowers see Catalog and My Borrowing, custodians see Requests.
 function NavLinks() {
@@ -74,10 +76,18 @@ export default function App() {
             }
           />
           <Route
+            path="/catalog/:id/request"
+            element={
+              <ProtectedRoute roles={['BORROWER']}>
+                <RequestPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/my"
             element={
               <ProtectedRoute roles={['BORROWER']}>
-                <MyBorrowingPlaceholder />
+                <MyBorrowingPage />
               </ProtectedRoute>
             }
           />

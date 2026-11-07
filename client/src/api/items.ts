@@ -20,3 +20,16 @@ export async function fetchCatalog(status?: ItemStatus | ''): Promise<CatalogIte
   }
   return res.items;
 }
+
+export interface CatalogItemDetail extends CatalogItem {
+  description: string | null;
+}
+
+// GET /api/items/:id (F-03). Throws ApiError 404 ITEM_NOT_FOUND for unknown or retired items.
+export async function fetchItem(id: number): Promise<CatalogItemDetail> {
+  const res = await apiFetch<{ item: CatalogItemDetail }>(`/api/items/${id}`);
+  if (!res || !res.item) {
+    throw new Error('Unexpected response from the server.');
+  }
+  return res.item;
+}
