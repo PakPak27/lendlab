@@ -4,8 +4,8 @@ import ProtectedRoute from './auth/ProtectedRoute';
 import ForbiddenPage from './pages/ForbiddenPage';
 import LoginPage from './pages/LoginPage';
 import CatalogPage from './pages/CatalogPage';
+import CustodianRequestsPage from './pages/CustodianRequestsPage';
 import MyBorrowingPage from './pages/MyBorrowingPage';
-import { CustodianRequestsPlaceholder } from './pages/Placeholders';
 import RequestPage from './pages/RequestPage';
 
 // Role-aware navigation (F-02): borrowers see Catalog and My Borrowing, custodians see Requests.
@@ -95,7 +95,7 @@ export default function App() {
             path="/custodian/requests"
             element={
               <ProtectedRoute roles={['CUSTODIAN']}>
-                <CustodianRequestsPlaceholder />
+                <CustodianRequestsPage />
               </ProtectedRoute>
             }
           />
