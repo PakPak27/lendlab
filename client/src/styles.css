@@ -50,3 +50,43 @@ body {
     align-items: center;
   }
 }
+
+/* F-04 My Borrowing: same pattern as the catalog — stacked cards below 768 px. */
+.borrow-head {
+  display: none;
+}
+
+.borrow-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'tag status status'
+    'name name name'
+    'date days due';
+  column-gap: 0.75rem;
+  row-gap: 0.25rem;
+  align-items: center;
+}
+
+.borrow-tag { grid-area: tag; }
+.borrow-name { grid-area: name; }
+.borrow-date { grid-area: date; }
+.borrow-days { grid-area: days; }
+.borrow-status { grid-area: status; justify-self: end; }
+.borrow-due { grid-area: due; justify-self: end; }
+
+@media (min-width: 768px) {
+  .borrow-head,
+  .borrow-row {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 2fr) minmax(0, 1.4fr) 4.5rem 6rem minmax(0, 1.4fr);
+    grid-template-areas: 'tag name date days status due';
+    column-gap: 0.75rem;
+    align-items: center;
+  }
+
+  .borrow-status,
+  .borrow-due {
+    justify-self: start;
+  }
+}

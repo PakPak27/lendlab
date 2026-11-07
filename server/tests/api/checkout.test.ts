@@ -200,15 +200,20 @@ describe('POST /api/custodian/requests/:id/checkout', () => {
 });
 
 describe('what the borrower sees after checkout (TEST-05-07 / AC-05-06)', () => {
-  it('stores the data the borrower screens read: FULFILLED request with an ACTIVE loan and due date', async () => {
+  it('GET /api/requests/mine shows the request as FULFILLED with an ACTIVE loan and the same due date', async () => {
     const { request: r } = await createPendingRequest({ assetTag: 'LAP-001', requestedDays: 3 });
-    const token = await tokenFor('custodian.hw@lendlab.test');
-    const res = await request(app).post(`/api/custodian/requests/${r.id}/checkout`).set(bearer(token));
+    const custodianToken = await tokenFor('custodian.hw@lendlab.test');
+    const checkout = await request(app).post(`/api/custodian/requests/${r.id}/checkout`).set(bearer(custodianToken));
+    expect(checkout.status).toBe(201);
 
-    const stored = await prisma.borrowRequest.findUniqueOrThrow({ where: { id: r.id }, include: { loan: true } });
-    expect(stored.status).toBe('FULFILLED');
-    expect(stored.loan?.status).toBe('ACTIVE');
-    expect(stored.loan?.dueAt.toISOString()).toBe(res.body.loan.dueAt);
-    // The borrower-side endpoint (GET /api/requests/mine) is F-04; its test for this lives in the F-04 PR.
+    const borrowerToken = await tokenFor('borrower1@lendlab.test');
+    const mine = await request(app).get('/api/requests/mine').set(bearer(borrowerToken));
+
+    expect(mine.status).toBe(200);
+    const seen = mine.body.requests.find((x: { id: number }) => x.id === r.id);
+    expect(seen.status).toBe('FULFILLED');
+    expect(seen.loan.status).toBe('ACTIVE');
+    expect(seen.loan.dueAt).toBe(checkout.body.loan.dueAt);
+    expect(seen.item.status).toBe('ON_LOAN');
   });
 });
