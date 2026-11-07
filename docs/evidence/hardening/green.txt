@@ -1,0 +1,73 @@
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ✓ tests/unit/errorHandler.test.ts (5 tests) 5ms
+ ✓ tests/unit/authService.test.ts (2 tests) 6ms
+ ✓ tests/unit/requireRole.test.ts (4 tests) 4ms
+ ✓ tests/unit/session.test.ts (6 tests) 4ms
+ ✓ tests/unit/config.test.ts (4 tests) 5ms
+ ✓ tests/unit/scope.test.ts (3 tests) 3ms
+ ✓ tests/unit/errors.test.ts (2 tests) 4ms
+ ✓ tests/unit/password.test.ts (2 tests) 276ms
+
+ Test Files  8 passed (8)
+      Tests  28 passed (28)
+   Start at  18:50:19
+   Duration  3.04s (transform 110ms, setup 0ms, collect 410ms, tests 307ms, environment 1ms, prepare 843ms)
+
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ✓ tests/api/auth.test.ts (32 tests) 10163ms
+   ✓ POST /api/auth/login > logs in with valid credentials (TEST-01-01 / AC-01-01) 2363ms
+   ✓ POST /api/auth/login > rejects an unknown e-mail with the same message (TEST-01-03 / AC-01-02) 316ms
+   ✓ seeded passwords (AC-01-06) > are bcrypt hashes that differ from the plaintext and verify correctly 472ms
+   ✓ GET /api/auth/me > returns the user for a valid token (TEST-01-05a) 306ms
+   ✓ GET /api/auth/me > accepts the bearer scheme in any letter case (RFC 7235) 319ms
+   ✓ POST /api/auth/logout > only revokes the calling session, not the user's other sessions 349ms
+ ✓ tests/api/items.test.ts (19 tests) 2746ms
+ ✓ tests/api/access.test.ts (17 tests) 6207ms
+   ✓ protected endpoints require a session (TEST-02-01 / AC-02-01) > list items answers 401 with only an error object 2357ms
+   ✓ borrower cannot use custodian operations (TEST-02-02 / AC-02-02) > gets 403 on the queue and on checkout, and nothing changes 320ms
+ ✓ tests/api/constraints.test.ts (8 tests) 6181ms
+   ✓ BR-02 one open commitment per item (database constraints) > DB allows one pending request per item 4410ms
+   ✓ BR-04 loan length 1-14 days (database CHECK constraint) > accepts requestedDays = 14 302ms
+ ✓ tests/api/health.test.ts (10 tests) 2957ms
+   ✓ SYS-01 seed data > is idempotent: running the seed twice does not create duplicates 375ms
+ ✓ tests/api/categories.test.ts (2 tests) 2492ms
+
+ Test Files  6 passed (6)
+      Tests  88 passed (88)
+   Start at  18:50:24
+   Duration  35.35s (transform 180ms, setup 0ms, collect 2.65s, tests 30.75s, environment 1ms, prepare 730ms)
+
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/client
+
+stderr | src/auth/access.test.tsx > role-aware navigation > a borrower sees Catalog and My Borrowing, and no Requests link
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stderr | src/pages/CatalogPage.test.tsx > catalog states (TEST-03-06) > shows "Loading catalog…" while the request is pending
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stderr | src/pages/LoginPage.test.tsx > protected routes > redirects to /login when there is no token (opening /my signed out)
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/auth/access.test.tsx (5 tests) 332ms
+ ✓ src/pages/CatalogPage.test.tsx (7 tests) 637ms
+ ✓ src/pages/LoginPage.test.tsx (9 tests) 4069ms
+   ✓ login form > has labelled fields and disables Sign in while submitting 598ms
+   ✓ login form > shows a red alert for wrong credentials (401) and stores no token 583ms
+   ✓ login form > shows the network error message when the server cannot be reached 541ms
+   ✓ after sign-in > sends a borrower to /catalog and shows their name and role badge 603ms
+   ✓ after sign-in > sends a custodian to /custodian/requests 622ms
+   ✓ after sign-in > Sign out calls the logout endpoint, clears the token and returns to /login 679ms
+
+ Test Files  3 passed (3)
+      Tests  21 passed (21)
+   Start at  18:51:03
+   Duration  7.59s (transform 381ms, setup 1.03s, collect 2.19s, tests 5.04s, environment 4.59s, prepare 726ms)
+

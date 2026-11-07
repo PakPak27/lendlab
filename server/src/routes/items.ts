@@ -18,7 +18,9 @@ const idParams = z.object({
   id: z
     .string()
     .regex(/^[1-9]\d*$/, 'Item id must be a positive whole number.')
-    .transform(Number),
+    .transform(Number)
+    // Must fit the database INT column, otherwise a huge id is a 500 instead of a 400.
+    .refine((n) => n <= 2_147_483_647, 'Item id is too large.'),
 });
 
 itemsRouter.get('/', validate(listQuery, 'query'), async (req, res, next) => {
