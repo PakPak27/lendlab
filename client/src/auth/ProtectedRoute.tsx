@@ -1,12 +1,11 @@
 import type { ReactNode } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth, type Role } from './AuthContext';
 
 // No session -> /login. Signed in with the wrong role -> /forbidden (F-02).
 // This only guides people; the server enforces the same rules (BR-07).
 export default function ProtectedRoute({ children, roles }: { children: ReactNode; roles?: Role[] }) {
   const { user, loading } = useAuth();
-  const location = useLocation();
 
   if (loading) {
     return (
@@ -16,7 +15,7 @@ export default function ProtectedRoute({ children, roles }: { children: ReactNod
     );
   }
   if (!user) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return <Navigate to="/login" replace />;
   }
   if (roles && !roles.includes(user.role)) {
     return <Navigate to="/forbidden" replace />;

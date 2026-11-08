@@ -16,7 +16,7 @@ const unauthenticated = () => new AppError(401, 'UNAUTHENTICATED', 'You must sig
 // Reads "Authorization: Bearer <token>" and returns the token, or null if the header is missing or malformed.
 function bearerToken(header: string | undefined): string | null {
   if (!header) return null;
-  const match = /^Bearer ([^\s]+)$/.exec(header);
+  const match = /^Bearer ([^\s]+)$/i.exec(header); // the auth scheme is case-insensitive (RFC 7235)
   return match ? match[1] : null;
 }
 

@@ -146,6 +146,13 @@ describe('GET /api/auth/me', () => {
     expect(JSON.stringify(res.body)).not.toMatch(/password/i);
   });
 
+  it.each([['bearer'], ['BEARER'], ['Bearer']])('accepts the %s scheme in any letter case (RFC 7235)', async (scheme) => {
+    const token = await tokenFor('borrower1@lendlab.test');
+    const res = await request(app).get('/api/auth/me').set('Authorization', `${scheme} ${token}`);
+    expect(res.status).toBe(200);
+    expect(res.body.user.email).toBe('borrower1@lendlab.test');
+  });
+
   it('rejects a request with no Authorization header (TEST-01-05b)', async () => {
     const res = await request(app).get('/api/auth/me');
     expect(res.status).toBe(401);

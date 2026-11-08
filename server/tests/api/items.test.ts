@@ -156,7 +156,7 @@ describe('GET /api/items/:id', () => {
     await prisma.item.update({ where: { id: prj.id }, data: { status: 'AVAILABLE' } });
   });
 
-  it.each([['abc'], ['0'], ['-1'], ['1.5']])('rejects id=%s with 400 VALIDATION_ERROR', async (id) => {
+  it.each([['abc'], ['0'], ['-1'], ['1.5'], ['99999999999'], ['1e3']])('rejects id=%s with 400 VALIDATION_ERROR', async (id) => {
     const res = await get(`/api/items/${id}`);
 
     expect(res.status).toBe(400);

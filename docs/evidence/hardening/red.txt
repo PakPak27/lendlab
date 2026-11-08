@@ -1,0 +1,82 @@
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ❯ tests/api/auth.test.ts (32 tests | 2 failed) 9984ms
+   ✓ POST /api/auth/login > logs in with valid credentials (TEST-01-01 / AC-01-01) 2445ms
+   ✓ POST /api/auth/login > rejects an unknown e-mail with the same message (TEST-01-03 / AC-01-02) 352ms
+   ✓ seeded passwords (AC-01-06) > are bcrypt hashes that differ from the plaintext and verify correctly 444ms
+   × GET /api/auth/me > accepts the bearer scheme in any letter case (RFC 7235) 263ms
+     → expected 401 to be 200 // Object.is equality
+   × GET /api/auth/me > accepts the BEARER scheme in any letter case (RFC 7235) 257ms
+     → expected 401 to be 200 // Object.is equality
+   ✓ POST /api/auth/logout > only revokes the calling session, not the user's other sessions 374ms
+stderr | tests/api/items.test.ts > GET /api/items/:id > rejects id=99999999999 with 400 VALIDATION_ERROR
+PrismaClientUnknownRequestError: 
+Invalid `prisma.item.findFirst()` invocation in
+C:\Users\sirab\lendlab\server\src\services\itemService.ts:41:34
+
+  38 }
+  39 
+  40 export async function getCatalogItem(id: number) {
+→ 41   const item = await prisma.item.findFirst(
+Error occurred during query execution:
+ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(Error { kind: ToSql(0), cause: Some(Error { kind: ConversionError("Unable to fit integer value '99999999999' into an INT4 (32-bit signed integer)."), original_code: None, original_message: None }) }), transient: false })
+    at $n.handleRequestError (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:121:7505)
+    at $n.handleAndLogRequestError (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:121:6623)
+    at $n.request (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:121:6307)
+    at l (C:\Users\sirab\lendlab\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at Module.getCatalogItem (C:\Users\sirab\lendlab\server\src\services\itemService.ts:41:16)
+    at C:\Users\sirab\lendlab\server\src\routes\items.ts:36:22 {
+  clientVersion: '5.22.0'
+}
+
+ ❯ tests/api/items.test.ts (19 tests | 1 failed) 2725ms
+   × GET /api/items/:id > rejects id=99999999999 with 400 VALIDATION_ERROR 22ms
+     → expected 500 to be 400 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/api/auth.test.ts > GET /api/auth/me > accepts the bearer scheme in any letter case (RFC 7235)
+ FAIL  tests/api/auth.test.ts > GET /api/auth/me > accepts the BEARER scheme in any letter case (RFC 7235)
+AssertionError: expected 401 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 401
+
+ ❯ tests/api/auth.test.ts:152:24
+    150|     const token = await tokenFor('borrower1@lendlab.test');
+    151|     const res = await request(app).get('/api/auth/me').set('Authorizat…
+    152|     expect(res.status).toBe(200);
+       |                        ^
+    153|     expect(res.body.user.email).toBe('borrower1@lendlab.test');
+    154|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/api/items.test.ts > GET /api/items/:id > rejects id=99999999999 with 400 VALIDATION_ERROR
+AssertionError: expected 500 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 500
+
+ ❯ tests/api/items.test.ts:162:24
+    160|     const res = await get(`/api/items/${id}`);
+    161| 
+    162|     expect(res.status).toBe(400);
+       |                        ^
+    163|     expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    164|     expect(res.body.error.details[0].field).toBe('id');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 48 passed (51)
+   Start at  18:47:49
+   Duration  14.45s (transform 157ms, setup 0ms, collect 1.09s, tests 12.71s, environment 0ms, prepare 235ms)
+
