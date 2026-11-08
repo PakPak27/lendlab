@@ -1,0 +1,18 @@
+
+Running 13 tests using 1 worker
+
+  ok  1 [chromium] › e2e\access.spec.ts:8:1 › borrower sees no Requests link and gets the no-access page on /custodian/requests (654ms)
+  ok  2 [chromium] › e2e\access.spec.ts:23:1 › the API refuses the custodian queue to a borrower even when the page is bypassed (393ms)
+  ok  3 [chromium] › e2e\auth.spec.ts:10:1 › borrower signs in, sees name and role, signs out; /my redirects when signed out (716ms)
+  ok  4 [chromium] › e2e\auth.spec.ts:31:1 › wrong password shows the red alert and stays on /login (545ms)
+  ok  5 [chromium] › e2e\auth.spec.ts:41:1 › custodian lands on the requests screen (754ms)
+  ok  6 [chromium] › e2e\borrow.spec.ts:13:1 › borrower requests LAP-001, sees it Pending, and the catalog shows it Reserved (2.8s)
+  ok  7 [chromium] › e2e\borrow.spec.ts:37:1 › requesting the Maintenance item ARD-003 is not possible (445ms)
+  ok  8 [chromium] › e2e\catalog.spec.ts:12:1 › borrower sees LAP-001 Available with Request enabled and ARD-003 Maintenance with Request disabled (497ms)
+  ok  9 [chromium] › e2e\checkout.spec.ts:49:1 › custodian checks out a pending request; the loan and item state are saved (2.7s)
+  ok 10 [chromium] › e2e\checkout.spec.ts:75:1 › a custodian of another location does not see the request (485ms)
+  ok 11 [chromium] › e2e\journey.spec.ts:35:1 › borrower requests, custodian checks out, borrower sees the loan with its due date (2.2s)
+  ok 12 [chromium] › e2e\journey.spec.ts:81:1 › a rule rejection: a second borrower cannot request the item that is already reserved (1.4s)
+  ok 13 [chromium] › e2e\smoke.spec.ts:4:1 › app loads at /login and the API reports the database as connected (330ms)
+
+  13 passed (15.2s)

@@ -1,0 +1,9 @@
+1. POST /api/requests -> 201, request 12 PENDING
+2. POST checkout -> 201, loan 6 ACTIVE, due 2026-11-12T12:48:10.448Z
+3. BEFORE restart, My Borrowing shows: LAP-001 Dell Latitude 5440 8 Nov 2026, 19:48 4 days On loan 12 Nov 2026, 19:48
+4. API server (pid 17304) stopped
+   /api/health while stopped: no answer (server is down)
+5. API server started again, /api/ready -> {"db":"connected"}
+6. AFTER restart, My Borrowing shows: LAP-001 Dell Latitude 5440 8 Nov 2026, 19:48 4 days On loan 12 Nov 2026, 19:48
+7. GET /api/requests/mine -> request 12 FULFILLED, loan ACTIVE, due 2026-11-12T12:48:10.448Z
+RESULT: PASS, same request, loan and due date after the restart

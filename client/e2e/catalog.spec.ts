@@ -1,8 +1,11 @@
 // F-03 TEST-03-05 (AC-03-05): a borrower sees item statuses and can request only Available items.
 // Needs both servers running against a freshly seeded database; pass the seed password as E2E_PASSWORD.
 import { expect, test } from '@playwright/test';
+import { resetBorrowingData } from './helpers/db';
 
 const PASSWORD = process.env.E2E_PASSWORD ?? '';
+
+test.beforeEach(resetBorrowingData); // no-op unless E2E_DATABASE_URL is set
 
 test.skip(!PASSWORD, 'Set E2E_PASSWORD to the DEMO_USER_PASSWORD used when seeding the database.');
 
