@@ -1,0 +1,105 @@
+commit base: 5667f7a (+ this branch)
+== server unit
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ✓ tests/unit/errorHandler.test.ts (5 tests) 4ms
+ ✓ tests/unit/requestInput.test.ts (20 tests) 7ms
+ ✓ tests/unit/authService.test.ts (2 tests) 4ms
+ ✓ tests/unit/requireRole.test.ts (4 tests) 4ms
+ ✓ tests/unit/session.test.ts (6 tests) 3ms
+ ✓ tests/unit/config.test.ts (4 tests) 4ms
+ ✓ tests/unit/scope.test.ts (3 tests) 3ms
+ ✓ tests/unit/errors.test.ts (2 tests) 2ms
+ ✓ tests/unit/dates.test.ts (4 tests) 3ms
+ ✓ tests/unit/password.test.ts (2 tests) 268ms
+
+ Test Files  10 passed (10)
+      Tests  52 passed (52)
+   Start at  19:48:57
+   Duration  3.64s (transform 136ms, setup 0ms, collect 487ms, tests 302ms, environment 2ms, prepare 1.22s)
+
+== server api
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ✓ tests/api/requests.test.ts (31 tests) 14908ms
+   ✓ POST /api/requests — create and reserve > creates a request and reserves the item (TEST-04-01 / AC-04-01) 2433ms
+   ✓ BR-01 only Available items can be requested (TEST-04-02 / AC-04-02) > rejects a second request for an item that is already reserved by someone else 338ms
+   ✓ BR-02 concurrency (TEST-04-03 / AC-04-03, NFR-05) > only one of two concurrent requests for the same item succeeds 2300ms
+   ✓ BR-02 concurrency (TEST-04-03 / AC-04-03, NFR-05) > stays correct under five concurrent requests 2493ms
+   ✓ input validation (TEST-04-06 .. TEST-04-08 / AC-04-04) > loan length 1 days -> 201 (TEST-04-06) 304ms
+   ✓ GET /api/requests/mine (TEST-04-09 / AC-04-05) > returns only the caller's requests, newest first, with loan null 356ms
+   ✓ GET /api/requests/:id > a borrower cannot read another borrower's request: 404, no data (TEST-02-04 / AC-02-04) 339ms
+ ✓ tests/api/checkout.test.ts (22 tests) 10226ms
+   ✓ GET /api/custodian/requests (queue) > lists pending requests oldest first with borrower, item, purpose and days (TEST-05-01 / AC-05-01) 2372ms
+   ✓ GET /api/custodian/requests (queue) > shows only requests for the custodian's own locations (TEST-02-05 / AC-02-05) 344ms
+   ✓ POST /api/custodian/requests/:id/checkout > two checkouts at the same moment create exactly one loan (TEST-05-04 / AC-05-04) 2319ms
+   ✓ POST /api/custodian/requests/:id/checkout > rejects the id 99999999999 with 400 313ms
+   ✓ what the borrower sees after checkout (TEST-05-07 / AC-05-06) > GET /api/requests/mine shows the request as FULFILLED with an ACTIVE loan and the same due date 352ms
+ ✓ tests/api/auth.test.ts (32 tests) 9116ms
+   ✓ POST /api/auth/login > logs in with valid credentials (TEST-01-01 / AC-01-01) 2332ms
+   ✓ POST /api/auth/login > rejects an unknown e-mail with the same message (TEST-01-03 / AC-01-02) 323ms
+   ✓ seeded passwords (AC-01-06) > are bcrypt hashes that differ from the plaintext and verify correctly 416ms
+   ✓ POST /api/auth/logout > only revokes the calling session, not the user's other sessions 312ms
+ ✓ tests/api/items.test.ts (19 tests) 2606ms
+ ✓ tests/api/access.test.ts (17 tests) 5431ms
+   ✓ protected endpoints require a session (TEST-02-01 / AC-02-01) > list items answers 401 with only an error object 2259ms
+ ✓ tests/api/constraints.test.ts (8 tests) 5624ms
+   ✓ BR-02 one open commitment per item (database constraints) > DB allows one pending request per item 4269ms
+ ✓ tests/api/health.test.ts (10 tests) 2815ms
+   ✓ SYS-01 seed data > is idempotent: running the seed twice does not create duplicates 333ms
+ ✓ tests/api/categories.test.ts (2 tests) 2318ms
+
+ Test Files  8 passed (8)
+      Tests  141 passed (141)
+   Start at  19:49:04
+   Duration  58.71s (transform 236ms, setup 0ms, collect 3.60s, tests 53.04s, environment 1ms, prepare 757ms)
+
+== client component
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/client
+
+stderr | src/auth/access.test.tsx > role-aware navigation > a borrower sees Catalog and My Borrowing, and no Requests link
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/auth/access.test.tsx (5 tests) 193ms
+stderr | src/pages/MyBorrowingPage.test.tsx > My Borrowing > lists requests in the order the server returns them (newest first)
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stderr | src/pages/RequestPage.test.tsx > request form > shows the item summary, a purpose field and a loan length defaulting to 7 days
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stderr | src/pages/CatalogPage.test.tsx > catalog states (TEST-03-06) > shows "Loading catalog…" while the request is pending
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stderr | src/pages/LoginPage.test.tsx > protected routes > redirects to /login when there is no token (opening /my signed out)
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/pages/MyBorrowingPage.test.tsx (5 tests) 278ms
+ ✓ src/pages/CatalogPage.test.tsx (7 tests) 460ms
+ ✓ src/pages/CustodianRequestsPage.test.tsx (9 tests) 850ms
+ ✓ src/pages/RequestPage.test.tsx (17 tests) 2357ms
+   ✓ request form > a loan length of 15 shows an inline error and sends nothing 476ms
+   ✓ request form > a 409 answer shows "no longer available" with a link back to the catalog (TEST-04-12) 328ms
+   ✓ request form > shows server field errors from a 400 under the matching field 359ms
+   ✓ request form > sends the trimmed purpose and days, then shows My Borrowing with a success message 508ms
+   ✓ request form > disables the submit button while saving 387ms
+ ✓ src/pages/LoginPage.test.tsx (9 tests) 4076ms
+   ✓ login form > has labelled fields and disables Sign in while submitting 617ms
+   ✓ login form > shows a red alert for wrong credentials (401) and stores no token 546ms
+   ✓ login form > shows the network error message when the server cannot be reached 535ms
+   ✓ after sign-in > sends a borrower to /catalog and shows their name and role badge 600ms
+   ✓ after sign-in > sends a custodian to /custodian/requests 669ms
+   ✓ after sign-in > Sign out calls the logout endpoint, clears the token and returns to /login 686ms
+
+ Test Files  6 passed (6)
+      Tests  52 passed (52)
+   Start at  19:50:04
+   Duration  8.26s (transform 400ms, setup 2.82s, collect 5.19s, tests 8.21s, environment 13.93s, prepare 1.13s)
+

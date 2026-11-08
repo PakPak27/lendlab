@@ -1,0 +1,62 @@
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ✓ tests/unit/errorHandler.test.ts (5 tests) 4ms
+ ✓ tests/unit/authService.test.ts (2 tests) 5ms
+ ✓ tests/unit/session.test.ts (6 tests) 4ms
+ ✓ tests/unit/requireRole.test.ts (4 tests) 4ms
+ ✓ tests/unit/config.test.ts (4 tests) 4ms
+ ✓ tests/unit/scope.test.ts (3 tests) 3ms
+ ✓ tests/unit/errors.test.ts (2 tests) 3ms
+ ✓ tests/unit/password.test.ts (2 tests) 265ms
+
+ Test Files  8 passed (8)
+      Tests  28 passed (28)
+   Start at  03:48:30
+   Duration  2.69s (transform 100ms, setup 0ms, collect 375ms, tests 292ms, environment 1ms, prepare 767ms)
+
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ✓ tests/api/auth.test.ts (29 tests) 8606ms
+   ✓ POST /api/auth/login > logs in with valid credentials (TEST-01-01 / AC-01-01) 2363ms
+   ✓ POST /api/auth/login > rejects an unknown e-mail with the same message (TEST-01-03 / AC-01-02) 317ms
+   ✓ seeded passwords (AC-01-06) > are bcrypt hashes that differ from the plaintext and verify correctly 429ms
+   ✓ POST /api/auth/logout > only revokes the calling session, not the user's other sessions 316ms
+ ✓ tests/api/access.test.ts (17 tests) 5492ms
+   ✓ protected endpoints require a session (TEST-02-01 / AC-02-01) > list items answers 401 with only an error object 2262ms
+ ✓ tests/api/constraints.test.ts (8 tests) 5611ms
+   ✓ BR-02 one open commitment per item (database constraints) > DB allows one pending request per item 4320ms
+ ✓ tests/api/health.test.ts (10 tests) 2749ms
+
+ Test Files  4 passed (4)
+      Tests  64 passed (64)
+   Start at  03:48:35
+   Duration  24.91s (transform 151ms, setup 0ms, collect 1.40s, tests 22.46s, environment 1ms, prepare 390ms)
+
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/client
+
+stderr | src/auth/access.test.tsx > role-aware navigation > a borrower sees Catalog and My Borrowing, and no Requests link
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/components/SystemStatus.test.tsx (3 tests) 82ms
+ ✓ src/auth/access.test.tsx (5 tests) 223ms
+stderr | src/pages/LoginPage.test.tsx > protected routes > redirects to /login when there is no token (opening /my signed out)
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/pages/LoginPage.test.tsx (9 tests) 4006ms
+   ✓ login form > has labelled fields and disables Sign in while submitting 590ms
+   ✓ login form > shows a red alert for wrong credentials (401) and stores no token 598ms
+   ✓ login form > shows the network error message when the server cannot be reached 556ms
+   ✓ after sign-in > sends a borrower to /catalog and shows their name and role badge 528ms
+   ✓ after sign-in > sends a custodian to /custodian/requests 664ms
+   ✓ after sign-in > Sign out calls the logout endpoint, clears the token and returns to /login 683ms
+
+ Test Files  3 passed (3)
+      Tests  17 passed (17)
+   Start at  03:49:05
+   Duration  6.08s (transform 155ms, setup 564ms, collect 818ms, tests 4.31s, environment 2.94s, prepare 645ms)
+

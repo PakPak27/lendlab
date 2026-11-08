@@ -1,0 +1,1439 @@
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ✓ tests/unit/errorHandler.test.ts (5 tests) 4ms
+ ✓ tests/unit/authService.test.ts (2 tests) 5ms
+ ✓ tests/unit/session.test.ts (6 tests) 3ms
+ ❯ tests/unit/requireRole.test.ts (0 test)
+ ✓ tests/unit/config.test.ts (4 tests) 5ms
+ ❯ tests/unit/scope.test.ts (0 test)
+ ✓ tests/unit/errors.test.ts (2 tests) 4ms
+ ✓ tests/unit/password.test.ts (2 tests) 277ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/requireRole.test.ts [ tests/unit/requireRole.test.ts ]
+Error: Failed to load url ../../src/middleware/requireRole.js (resolved id: ../../src/middleware/requireRole.js) in C:/Users/sirab/lendlab/server/tests/unit/requireRole.test.ts. Does the file exist?
+ ❯ loadAndTransform ../node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/scope.test.ts [ tests/unit/scope.test.ts ]
+Error: Failed to load url ../../src/lib/scope.js (resolved id: ../../src/lib/scope.js) in C:/Users/sirab/lendlab/server/tests/unit/scope.test.ts. Does the file exist?
+ ❯ loadAndTransform ../node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  2 failed | 6 passed (8)
+      Tests  21 passed (21)
+   Start at  03:47:43
+   Duration  2.69s (transform 96ms, setup 0ms, collect 341ms, tests 297ms, environment 1ms, prepare 771ms)
+
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ❯ tests/api/access.test.ts (17 tests | 14 failed) 5450ms
+   × protected endpoints require a session (TEST-02-01 / AC-02-01) > list items answers 401 with only an error object 2271ms
+     → expected 404 to be 401 // Object.is equality
+   × protected endpoints require a session (TEST-02-01 / AC-02-01) > item detail answers 401 with only an error object 175ms
+     → expected 404 to be 401 // Object.is equality
+   × protected endpoints require a session (TEST-02-01 / AC-02-01) > create request answers 401 with only an error object 173ms
+     → expected 404 to be 401 // Object.is equality
+   × protected endpoints require a session (TEST-02-01 / AC-02-01) > my requests answers 401 with only an error object 170ms
+     → expected 404 to be 401 // Object.is equality
+   × protected endpoints require a session (TEST-02-01 / AC-02-01) > request detail answers 401 with only an error object 171ms
+     → expected 404 to be 401 // Object.is equality
+   × protected endpoints require a session (TEST-02-01 / AC-02-01) > custodian queue answers 401 with only an error object 174ms
+     → expected 404 to be 401 // Object.is equality
+   × protected endpoints require a session (TEST-02-01 / AC-02-01) > checkout answers 401 with only an error object 168ms
+     → expected 404 to be 401 // Object.is equality
+   × protected endpoints require a session (TEST-02-01 / AC-02-01) > does not let a revoked or made-up token through any of them 172ms
+     → /api/items: expected 404 to be 401 // Object.is equality
+   × borrower cannot use custodian operations (TEST-02-02 / AC-02-02) > gets 403 on the queue and on checkout, and nothing changes 272ms
+     → expected 404 to be 403 // Object.is equality
+   × custodian cannot create or read borrow requests (TEST-02-03 / AC-02-03) > gets 403 on POST /api/requests, and no request is created 245ms
+     → expected 404 to be 403 // Object.is equality
+   × custodian cannot create or read borrow requests (TEST-02-03 / AC-02-03) > gets 403 on GET /api/requests/mine 268ms
+     → expected 404 to be 403 // Object.is equality
+   × custodian cannot create or read borrow requests (TEST-02-03 / AC-02-03) > gets 403 on GET /api/requests/1 238ms
+     → expected 404 to be 403 // Object.is equality
+   × enforcement order (design section 2) > answers 401 before 403: an anonymous call to a custodian route is not a permission error 174ms
+     → expected 404 to be 401 // Object.is equality
+   × enforcement order (design section 2) > answers 403 before validating the body: a forbidden role learns nothing about the input rules 246ms
+     → expected 404 to be 403 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 14 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/api/access.test.ts > protected endpoints require a session (TEST-02-01 / AC-02-01) > list items answers 401 with only an error object
+ FAIL  tests/api/access.test.ts > protected endpoints require a session (TEST-02-01 / AC-02-01) > item detail answers 401 with only an error object
+ FAIL  tests/api/access.test.ts > protected endpoints require a session (TEST-02-01 / AC-02-01) > create request answers 401 with only an error object
+ FAIL  tests/api/access.test.ts > protected endpoints require a session (TEST-02-01 / AC-02-01) > my requests answers 401 with only an error object
+ FAIL  tests/api/access.test.ts > protected endpoints require a session (TEST-02-01 / AC-02-01) > request detail answers 401 with only an error object
+ FAIL  tests/api/access.test.ts > protected endpoints require a session (TEST-02-01 / AC-02-01) > custodian queue answers 401 with only an error object
+ FAIL  tests/api/access.test.ts > protected endpoints require a session (TEST-02-01 / AC-02-01) > checkout answers 401 with only an error object
+AssertionError: expected 404 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 404
+
+ ❯ tests/api/access.test.ts:53:24
+     51|     const res = await request(app)[method](path);
+     52| 
+     53|     expect(res.status).toBe(401);
+       |                        ^
+     54|     expect(Object.keys(res.body)).toEqual(['error']);
+     55|     expect(res.body.error.code).toBe('UNAUTHENTICATED');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯
+
+ FAIL  tests/api/access.test.ts > protected endpoints require a session (TEST-02-01 / AC-02-01) > does not let a revoked or made-up token through any of them
+AssertionError: /api/items: expected 404 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 404
+
+ ❯ tests/api/access.test.ts:61:32
+     59|     for (const [, method, path] of protectedEndpoints) {
+     60|       const res = await request(app)[method](path).set('Authorization'…
+     61|       expect(res.status, path).toBe(401);
+       |                                ^
+     62|     }
+     63|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯
+
+ FAIL  tests/api/access.test.ts > borrower cannot use custodian operations (TEST-02-02 / AC-02-02) > gets 403 on the queue and on checkout, and nothing changes
+AssertionError: expected 404 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 404
+
+ ❯ tests/api/access.test.ts:82:26
+     80| 
+     81|     for (const res of [queue, checkout]) {
+     82|       expect(res.status).toBe(403);
+       |                          ^
+     83|       expect(res.body.error.code).toBe('FORBIDDEN');
+     84|       expect(res.body.error.message).toBe('You do not have permission …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/14]⎯
+
+ FAIL  tests/api/access.test.ts > custodian cannot create or read borrow requests (TEST-02-03 / AC-02-03) > gets 403 on POST /api/requests, and no request is created
+AssertionError: expected 404 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 404
+
+ ❯ tests/api/access.test.ts:102:24
+    100|       .send({ itemId: item.id, purpose: 'Custodian trying to borrow', …
+    101| 
+    102|     expect(res.status).toBe(403);
+       |                        ^
+    103|     expect(res.body.error.code).toBe('FORBIDDEN');
+    104|     expect(await prisma.borrowRequest.count()).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/14]⎯
+
+ FAIL  tests/api/access.test.ts > custodian cannot create or read borrow requests (TEST-02-03 / AC-02-03) > gets 403 on GET /api/requests/mine
+ FAIL  tests/api/access.test.ts > custodian cannot create or read borrow requests (TEST-02-03 / AC-02-03) > gets 403 on GET /api/requests/1
+AssertionError: expected 404 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 404
+
+ ❯ tests/api/access.test.ts:112:24
+    110|     const res = await request(app).get(path).set('Authorization', `Bea…
+    111| 
+    112|     expect(res.status).toBe(403);
+       |                        ^
+    113|     expect(res.body.error.code).toBe('FORBIDDEN');
+    114|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/14]⎯
+
+ FAIL  tests/api/access.test.ts > enforcement order (design section 2) > answers 401 before 403: an anonymous call to a custodian route is not a permission error
+AssertionError: expected 404 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 404
+
+ ❯ tests/api/access.test.ts:120:24
+    118|   it('answers 401 before 403: an anonymous call to a custodian route i…
+    119|     const res = await request(app).post('/api/custodian/requests/1/che…
+    120|     expect(res.status).toBe(401);
+       |                        ^
+    121|   });
+    122| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/14]⎯
+
+ FAIL  tests/api/access.test.ts > enforcement order (design section 2) > answers 403 before validating the body: a forbidden role learns nothing about the input rules
+AssertionError: expected 404 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 404
+
+ ❯ tests/api/access.test.ts:126:24
+    124|     const token = await tokenFor('custodian.hw@lendlab.test');
+    125|     const res = await request(app).post('/api/requests').set('Authoriz…
+    126|     expect(res.status).toBe(403);
+       |                        ^
+    127|   });
+    128| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/14]⎯
+
+ Test Files  1 failed (1)
+      Tests  14 failed | 3 passed (17)
+   Start at  03:47:48
+   Duration  6.23s (transform 98ms, setup 0ms, collect 511ms, tests 5.45s, environment 0ms, prepare 102ms)
+
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/client
+
+stderr | src/auth/access.test.tsx > role-aware navigation > a borrower sees Catalog and My Borrowing, and no Requests link
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ❯ src/auth/access.test.tsx (5 tests | 5 failed) 3136ms
+   × role-aware navigation > a borrower sees Catalog and My Borrowing, and no Requests link 93ms
+     → Unable to find an accessible element with the role "link" and name "Catalog"
+
+Here are the accessible roles:
+
+  navigation:
+
+  Name "":
+  <nav
+    class="navbar navbar-expand bg-primary"
+    data-bs-theme="dark"
+  />
+
+  --------------------------------------------------
+  link:
+
+  Name "LendLab":
+  <a
+    class="navbar-brand fw-bold"
+    href="/catalog"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Sign out":
+  <button
+    class="btn btn-outline-light btn-sm"
+    type="button"
+  />
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  <main
+    class="container py-4"
+  />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Catalog":
+  <h1
+    class="h3"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="text-secondary"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/catalog"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Borrower One
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Borrower
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        data-testid="page-catalog"
+      >
+        <h1
+          class="h3"
+        >
+          Catalog
+        </h1>
+        <p
+          class="text-secondary"
+        >
+          This screen arrives with a later Sprint 1 feature.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+   × role-aware navigation > a custodian sees Requests, and no borrower links 21ms
+     → Unable to find an accessible element with the role "link" and name "Requests"
+
+Here are the accessible roles:
+
+  navigation:
+
+  Name "":
+  <nav
+    class="navbar navbar-expand bg-primary"
+    data-bs-theme="dark"
+  />
+
+  --------------------------------------------------
+  link:
+
+  Name "LendLab":
+  <a
+    class="navbar-brand fw-bold"
+    href="/custodian/requests"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Sign out":
+  <button
+    class="btn btn-outline-light btn-sm"
+    type="button"
+  />
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  <main
+    class="container py-4"
+  />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Requests":
+  <h1
+    class="h3"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="text-secondary"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/custodian/requests"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Hardware Lab Custodian
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Custodian
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        data-testid="page-custodian-requests"
+      >
+        <h1
+          class="h3"
+        >
+          Requests
+        </h1>
+        <p
+          class="text-secondary"
+        >
+          This screen arrives with a later Sprint 1 feature.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+   × role-restricted routes > a borrower opening /custodian/requests sees the "no access" page with a link home 1012ms
+     → Unable to find an element with the text: You do not have access to this page.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/catalog"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Borrower One
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Borrower
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        data-testid="page-custodian-requests"
+      >
+        <h1
+          class="h3"
+        >
+          Requests
+        </h1>
+        <p
+          class="text-secondary"
+        >
+          This screen arrives with a later Sprint 1 feature.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/catalog"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Borrower One
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Borrower
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        data-testid="page-custodian-requests"
+      >
+        <h1
+          class="h3"
+        >
+          Requests
+        </h1>
+        <p
+          class="text-secondary"
+        >
+          This screen arrives with a later Sprint 1 feature.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+   × role-restricted routes > a custodian opening /my sees the "no access" page linking to their home 1003ms
+     → Unable to find an element with the text: You do not have access to this page.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/custodian/requests"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Hardware Lab Custodian
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Custodian
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        data-testid="page-my-borrowing"
+      >
+        <h1
+          class="h3"
+        >
+          My Borrowing
+        </h1>
+        <p
+          class="text-secondary"
+        >
+          This screen arrives with a later Sprint 1 feature.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/custodian/requests"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Hardware Lab Custodian
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Custodian
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        data-testid="page-my-borrowing"
+      >
+        <h1
+          class="h3"
+        >
+          My Borrowing
+        </h1>
+        <p
+          class="text-secondary"
+        >
+          This screen arrives with a later Sprint 1 feature.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+   × role-restricted routes > /forbidden itself is reachable for a signed-in user 1006ms
+     → Unable to find an element with the text: You do not have access to this page.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/catalog"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Borrower One
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Borrower
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        class="text-center py-5"
+      >
+        <h1
+          class="h3"
+        >
+          Page not found
+        </h1>
+        <a
+          href="/"
+        >
+          Go to the home page
+        </a>
+      </div>
+    </main>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/catalog"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Borrower One
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Borrower
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        class="text-center py-5"
+      >
+        <h1
+          class="h3"
+        >
+          Page not found
+        </h1>
+        <a
+          href="/"
+        >
+          Go to the home page
+        </a>
+      </div>
+    </main>
+  </div>
+</body>
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/auth/access.test.tsx > role-aware navigation > a borrower sees Catalog and My Borrowing, and no Requests link
+TestingLibraryElementError: Unable to find an accessible element with the role "link" and name "Catalog"
+
+Here are the accessible roles:
+
+  navigation:
+
+  Name "":
+  <nav
+    class="navbar navbar-expand bg-primary"
+    data-bs-theme="dark"
+  />
+
+  --------------------------------------------------
+  link:
+
+  Name "LendLab":
+  <a
+    class="navbar-brand fw-bold"
+    href="/catalog"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Sign out":
+  <button
+    class="btn btn-outline-light btn-sm"
+    type="button"
+  />
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  <main
+    class="container py-4"
+  />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Catalog":
+  <h1
+    class="h3"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="text-secondary"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/catalog"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Borrower One
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Borrower
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        data-testid="page-catalog"
+      >
+        <h1
+          class="h3"
+        >
+          Catalog
+        </h1>
+        <p
+          class="text-secondary"
+        >
+          This screen arrives with a later Sprint 1 feature.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+ ❯ Object.getElementError ../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/auth/access.test.tsx:32:19
+     30|     await screen.findByTestId('page-catalog');
+     31| 
+     32|     expect(screen.getByRole('link', { name: 'Catalog' })).toBeInTheDoc…
+       |                   ^
+     33|     expect(screen.getByRole('link', { name: 'My Borrowing' })).toBeInT…
+     34|     expect(screen.queryByRole('link', { name: 'Requests' })).not.toBeI…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/auth/access.test.tsx > role-aware navigation > a custodian sees Requests, and no borrower links
+TestingLibraryElementError: Unable to find an accessible element with the role "link" and name "Requests"
+
+Here are the accessible roles:
+
+  navigation:
+
+  Name "":
+  <nav
+    class="navbar navbar-expand bg-primary"
+    data-bs-theme="dark"
+  />
+
+  --------------------------------------------------
+  link:
+
+  Name "LendLab":
+  <a
+    class="navbar-brand fw-bold"
+    href="/custodian/requests"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Sign out":
+  <button
+    class="btn btn-outline-light btn-sm"
+    type="button"
+  />
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  <main
+    class="container py-4"
+  />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Requests":
+  <h1
+    class="h3"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="text-secondary"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/custodian/requests"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Hardware Lab Custodian
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Custodian
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        data-testid="page-custodian-requests"
+      >
+        <h1
+          class="h3"
+        >
+          Requests
+        </h1>
+        <p
+          class="text-secondary"
+        >
+          This screen arrives with a later Sprint 1 feature.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+ ❯ Object.getElementError ../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/auth/access.test.tsx:41:19
+     39|     await screen.findByTestId('page-custodian-requests');
+     40| 
+     41|     expect(screen.getByRole('link', { name: 'Requests' })).toBeInTheDo…
+       |                   ^
+     42|     expect(screen.queryByRole('link', { name: 'Catalog' })).not.toBeIn…
+     43|     expect(screen.queryByRole('link', { name: 'My Borrowing' })).not.t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/auth/access.test.tsx > role-restricted routes > a borrower opening /custodian/requests sees the "no access" page with a link home
+TestingLibraryElementError: Unable to find an element with the text: You do not have access to this page.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/catalog"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Borrower One
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Borrower
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        data-testid="page-custodian-requests"
+      >
+        <h1
+          class="h3"
+        >
+          Requests
+        </h1>
+        <p
+          class="text-secondary"
+        >
+          This screen arrives with a later Sprint 1 feature.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/catalog"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Borrower One
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Borrower
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        data-testid="page-custodian-requests"
+      >
+        <h1
+          class="h3"
+        >
+          Requests
+        </h1>
+        <p
+          class="text-secondary"
+        >
+          This screen arrives with a later Sprint 1 feature.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+ ❯ waitForWrapper ../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/auth/access.test.tsx:51:25
+     49|     signedInAs(borrower, '/custodian/requests');
+     50| 
+     51|     expect(await screen.findByText('You do not have access to this pag…
+       |                         ^
+     52|     expect(screen.getByRole('link', { name: 'Go to your home page' }))…
+     53|     expect(screen.queryByTestId('page-custodian-requests')).not.toBeIn…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/auth/access.test.tsx > role-restricted routes > a custodian opening /my sees the "no access" page linking to their home
+TestingLibraryElementError: Unable to find an element with the text: You do not have access to this page.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/custodian/requests"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Hardware Lab Custodian
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Custodian
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        data-testid="page-my-borrowing"
+      >
+        <h1
+          class="h3"
+        >
+          My Borrowing
+        </h1>
+        <p
+          class="text-secondary"
+        >
+          This screen arrives with a later Sprint 1 feature.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/custodian/requests"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Hardware Lab Custodian
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Custodian
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        data-testid="page-my-borrowing"
+      >
+        <h1
+          class="h3"
+        >
+          My Borrowing
+        </h1>
+        <p
+          class="text-secondary"
+        >
+          This screen arrives with a later Sprint 1 feature.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+ ❯ waitForWrapper ../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/auth/access.test.tsx:59:25
+     57|     signedInAs(custodian, '/my');
+     58| 
+     59|     expect(await screen.findByText('You do not have access to this pag…
+       |                         ^
+     60|     expect(screen.getByRole('link', { name: 'Go to your home page' }))…
+     61|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/auth/access.test.tsx > role-restricted routes > /forbidden itself is reachable for a signed-in user
+TestingLibraryElementError: Unable to find an element with the text: You do not have access to this page.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/catalog"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Borrower One
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Borrower
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        class="text-center py-5"
+      >
+        <h1
+          class="h3"
+        >
+          Page not found
+        </h1>
+        <a
+          href="/"
+        >
+          Go to the home page
+        </a>
+      </div>
+    </main>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      class="navbar navbar-expand bg-primary"
+      data-bs-theme="dark"
+    >
+      <div
+        class="container"
+      >
+        <a
+          class="navbar-brand fw-bold"
+          href="/catalog"
+        >
+          LendLab
+        </a>
+        <div
+          class="d-flex align-items-center gap-2 text-white"
+        >
+          <span>
+            Borrower One
+          </span>
+          <span
+            class="badge text-bg-light"
+          >
+            Borrower
+          </span>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main
+      class="container py-4"
+    >
+      <div
+        class="text-center py-5"
+      >
+        <h1
+          class="h3"
+        >
+          Page not found
+        </h1>
+        <a
+          href="/"
+        >
+          Go to the home page
+        </a>
+      </div>
+    </main>
+  </div>
+</body>
+ ❯ waitForWrapper ../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/auth/access.test.tsx:65:25
+     63|   it('/forbidden itself is reachable for a signed-in user', async () =…
+     64|     signedInAs(borrower, '/forbidden');
+     65|     expect(await screen.findByText('You do not have access to this pag…
+       |                         ^
+     66|   });
+     67| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  03:47:56
+   Duration  4.93s (transform 81ms, setup 188ms, collect 217ms, tests 3.14s, environment 918ms, prepare 165ms)
+

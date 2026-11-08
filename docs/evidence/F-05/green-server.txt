@@ -1,0 +1,44 @@
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ✓ tests/unit/errorHandler.test.ts (5 tests) 5ms
+ ✓ tests/unit/authService.test.ts (2 tests) 4ms
+ ✓ tests/unit/session.test.ts (6 tests) 4ms
+ ✓ tests/unit/requireRole.test.ts (4 tests) 4ms
+ ✓ tests/unit/config.test.ts (4 tests) 4ms
+ ✓ tests/unit/scope.test.ts (3 tests) 3ms
+ ✓ tests/unit/errors.test.ts (2 tests) 2ms
+ ✓ tests/unit/dates.test.ts (4 tests) 3ms
+ ✓ tests/unit/password.test.ts (2 tests) 268ms
+
+ Test Files  9 passed (9)
+      Tests  32 passed (32)
+   Start at  03:51:08
+   Duration  3.06s (transform 108ms, setup 0ms, collect 402ms, tests 297ms, environment 2ms, prepare 894ms)
+
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ✓ tests/api/checkout.test.ts (19 tests) 9474ms
+   ✓ GET /api/custodian/requests (queue) > lists pending requests oldest first with borrower, item, purpose and days (TEST-05-01 / AC-05-01) 2415ms
+   ✓ GET /api/custodian/requests (queue) > shows only requests for the custodian's own locations (TEST-02-05 / AC-02-05) 360ms
+   ✓ POST /api/custodian/requests/:id/checkout > checks out a pending request: loan, due date, request and item states (TEST-05-02 / AC-05-02) 308ms
+   ✓ POST /api/custodian/requests/:id/checkout > two checkouts at the same moment create exactly one loan (TEST-05-04 / AC-05-04) 2328ms
+ ✓ tests/api/auth.test.ts (29 tests) 8894ms
+   ✓ POST /api/auth/login > logs in with valid credentials (TEST-01-01 / AC-01-01) 2369ms
+   ✓ POST /api/auth/login > rejects an unknown e-mail with the same message (TEST-01-03 / AC-01-02) 325ms
+   ✓ POST /api/auth/login > treats the e-mail case-insensitively and ignores surrounding spaces 359ms
+   ✓ seeded passwords (AC-01-06) > are bcrypt hashes that differ from the plaintext and verify correctly 443ms
+   ✓ POST /api/auth/logout > only revokes the calling session, not the user's other sessions 333ms
+ ✓ tests/api/access.test.ts (17 tests) 5683ms
+   ✓ protected endpoints require a session (TEST-02-01 / AC-02-01) > list items answers 401 with only an error object 2279ms
+ ✓ tests/api/constraints.test.ts (8 tests) 5772ms
+   ✓ BR-02 one open commitment per item (database constraints) > DB allows one pending request per item 4330ms
+ ✓ tests/api/health.test.ts (10 tests) 2782ms
+   ✓ SYS-01 seed data > is idempotent: running the seed twice does not create duplicates 302ms
+
+ Test Files  5 passed (5)
+      Tests  83 passed (83)
+   Start at  03:51:13
+   Duration  35.97s (transform 168ms, setup 0ms, collect 1.93s, tests 32.61s, environment 1ms, prepare 508ms)
+

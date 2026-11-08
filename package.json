@@ -1,0 +1,21 @@
+{
+  "name": "lendlab",
+  "private": true,
+  "version": "0.1.0",
+  "description": "LendLab - CPE Department Equipment Lending System (CPE 334 Group Project, Theme 2)",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev -w server",
+    "dev:client": "npm run dev -w client",
+    "build": "npm run build -w server && npm run build -w client",
+    "test": "npm run test -w server && npm run test -w client",
+    "db:migrate": "npm run db:migrate -w server",
+    "db:seed": "npm run db:seed -w server"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
