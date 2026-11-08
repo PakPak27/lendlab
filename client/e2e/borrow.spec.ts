@@ -2,8 +2,11 @@
 // Needs both servers running against a FRESHLY SEEDED database (this test reserves LAP-001);
 // reset with `npx prisma migrate reset --force` in server/ before re-running. Pass the seed password as E2E_PASSWORD.
 import { expect, test } from '@playwright/test';
+import { resetBorrowingData } from './helpers/db';
 
 const PASSWORD = process.env.E2E_PASSWORD ?? '';
+
+test.beforeEach(resetBorrowingData); // no-op unless E2E_DATABASE_URL is set
 
 test.skip(!PASSWORD, 'Set E2E_PASSWORD to the DEMO_USER_PASSWORD used when seeding the database.');
 
