@@ -1,0 +1,27 @@
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/client
+
+ ✓ src/components/SystemStatus.test.tsx (3 tests) 103ms
+stderr | src/auth/access.test.tsx > role-aware navigation > a borrower sees Catalog and My Borrowing, and no Requests link
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stderr | src/pages/LoginPage.test.tsx > protected routes > redirects to /login when there is no token (opening /my signed out)
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/auth/access.test.tsx (5 tests) 183ms
+ ✓ src/pages/CustodianRequestsPage.test.tsx (9 tests) 845ms
+ ✓ src/pages/LoginPage.test.tsx (9 tests) 4062ms
+   ✓ login form > has labelled fields and disables Sign in while submitting 620ms
+   ✓ login form > shows a red alert for wrong credentials (401) and stores no token 602ms
+   ✓ login form > shows the network error message when the server cannot be reached 557ms
+   ✓ after sign-in > sends a borrower to /catalog and shows their name and role badge 637ms
+   ✓ after sign-in > sends a custodian to /custodian/requests 557ms
+   ✓ after sign-in > Sign out calls the logout endpoint, clears the token and returns to /login 709ms
+
+ Test Files  4 passed (4)
+      Tests  26 passed (26)
+   Start at  03:54:17
+   Duration  6.32s (transform 222ms, setup 912ms, collect 1.27s, tests 5.19s, environment 4.49s, prepare 785ms)
+

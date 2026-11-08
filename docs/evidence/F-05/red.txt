@@ -1,0 +1,311 @@
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ❯ tests/unit/dates.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/dates.test.ts [ tests/unit/dates.test.ts ]
+Error: Failed to load url ../../src/lib/dates.js (resolved id: ../../src/lib/dates.js) in C:/Users/sirab/lendlab/server/tests/unit/dates.test.ts. Does the file exist?
+ ❯ loadAndTransform ../node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  03:50:30
+   Duration  324ms (transform 27ms, setup 0ms, collect 0ms, tests 0ms, environment 0ms, prepare 108ms)
+
+
+ RUN  v2.1.9 C:/Users/sirab/lendlab/server
+
+ ❯ tests/api/checkout.test.ts (19 tests | 17 failed) 9868ms
+   × GET /api/custodian/requests (queue) > lists pending requests oldest first with borrower, item, purpose and days (TEST-05-01 / AC-05-01) 2471ms
+     → expected 404 to be 200 // Object.is equality
+   × GET /api/custodian/requests (queue) > returns an empty list when nothing is pending 269ms
+     → expected 404 to be 200 // Object.is equality
+   × GET /api/custodian/requests (queue) > shows only requests for the custodian's own locations (TEST-02-05 / AC-02-05) 353ms
+     → Cannot read properties of undefined (reading 'map')
+   × GET /api/custodian/requests (queue) > does not list requests that are no longer pending 277ms
+     → expected undefined to deeply equal []
+   × GET /api/custodian/requests (queue) > supports status=PENDING and rejects any other status with 400 269ms
+     → expected 404 to be 200 // Object.is equality
+   × POST /api/custodian/requests/:id/checkout > checks out a pending request: loan, due date, request and item states (TEST-05-02 / AC-05-02) 267ms
+     → expected 404 to be 201 // Object.is equality
+   × POST /api/custodian/requests/:id/checkout > removes the request from the queue afterwards 280ms
+     → expected undefined to deeply equal []
+   × POST /api/custodian/requests/:id/checkout > cannot check out twice: 409 REQUEST_NOT_PENDING and still exactly one loan (TEST-05-03 / AC-05-03) 272ms
+     → expected 404 to be 409 // Object.is equality
+   × POST /api/custodian/requests/:id/checkout > two checkouts at the same moment create exactly one loan (TEST-05-04 / AC-05-04) 2318ms
+     → expected [ 404, 404 ] to deeply equal [ 201, 409 ]
+   × POST /api/custodian/requests/:id/checkout > item no longer reserved: 409 ITEM_NOT_AVAILABLE, request stays pending, no loan (TEST-05-05 / AC-05-05) 324ms
+     → expected 404 to be 409 // Object.is equality
+   × POST /api/custodian/requests/:id/checkout > a request that was cancelled cannot be checked out 318ms
+     → expected 404 to be 409 // Object.is equality
+   ✓ POST /api/custodian/requests/:id/checkout > cannot check out another location's request: 404, nothing changes (TEST-02-06 / AC-02-06) 306ms
+   ✓ POST /api/custodian/requests/:id/checkout > an unknown request id is 404 372ms
+   × POST /api/custodian/requests/:id/checkout > rejects the id abc with 400 300ms
+     → expected 404 to be 400 // Object.is equality
+   × POST /api/custodian/requests/:id/checkout > rejects the id 0 with 400 283ms
+     → expected 404 to be 400 // Object.is equality
+   × POST /api/custodian/requests/:id/checkout > rejects the id -3 with 400 298ms
+     → expected 404 to be 400 // Object.is equality
+   × POST /api/custodian/requests/:id/checkout > rejects the id 1.5 with 400 286ms
+     → expected 404 to be 400 // Object.is equality
+   × POST /api/custodian/requests/:id/checkout > rejects the id 99999999999 with 400 288ms
+     → expected 404 to be 400 // Object.is equality
+   × what the borrower sees after checkout (TEST-05-07 / AC-05-06) > stores the data the borrower screens read: FULFILLED request with an ACTIVE loan and due date 293ms
+     → expected 'PENDING' to be 'FULFILLED' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 17 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/api/checkout.test.ts > GET /api/custodian/requests (queue) > lists pending requests oldest first with borrower, item, purpose and days (TEST-05-01 / AC-05-01)
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/api/checkout.test.ts:36:24
+     34|     const res = await request(app).get('/api/custodian/requests').set(…
+     35| 
+     36|     expect(res.status).toBe(200);
+       |                        ^
+     37|     expect(res.body.requests.map((r: { id: number }) => r.id)).toEqual…
+     38|     expect(res.body.requests[0]).toMatchObject({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/17]⎯
+
+ FAIL  tests/api/checkout.test.ts > GET /api/custodian/requests (queue) > returns an empty list when nothing is pending
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/api/checkout.test.ts:51:24
+     49|     const token = await tokenFor('custodian.hw@lendlab.test');
+     50|     const res = await request(app).get('/api/custodian/requests').set(…
+     51|     expect(res.status).toBe(200);
+       |                        ^
+     52|     expect(res.body).toEqual({ requests: [] });
+     53|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/17]⎯
+
+ FAIL  tests/api/checkout.test.ts > GET /api/custodian/requests (queue) > shows only requests for the custodian's own locations (TEST-02-05 / AC-02-05)
+TypeError: Cannot read properties of undefined (reading 'map')
+ ❯ tests/api/checkout.test.ts:62:33
+     60|     const mediaList = await request(app).get('/api/custodian/requests'…
+     61| 
+     62|     expect(hwList.body.requests.map((r: { id: number }) => r.id)).toEq…
+       |                                 ^
+     63|     expect(mediaList.body.requests.map((r: { id: number }) => r.id)).t…
+     64|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/17]⎯
+
+ FAIL  tests/api/checkout.test.ts > GET /api/custodian/requests (queue) > does not list requests that are no longer pending
+AssertionError: expected undefined to deeply equal []
+
+- Expected: 
+Array []
+
++ Received: 
+undefined
+
+ ❯ tests/api/checkout.test.ts:70:31
+     68|     await prisma.borrowRequest.update({ where: { id: r.id }, data: { s…
+     69|     const res = await request(app).get('/api/custodian/requests').set(…
+     70|     expect(res.body.requests).toEqual([]);
+       |                               ^
+     71|   });
+     72| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/17]⎯
+
+ FAIL  tests/api/checkout.test.ts > GET /api/custodian/requests (queue) > supports status=PENDING and rejects any other status with 400
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/api/checkout.test.ts:78:23
+     76|     const bad = await request(app).get('/api/custodian/requests?status…
+     77| 
+     78|     expect(ok.status).toBe(200);
+       |                       ^
+     79|     expect(bad.status).toBe(400);
+     80|     expect(bad.body.error.code).toBe('VALIDATION_ERROR');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/17]⎯
+
+ FAIL  tests/api/checkout.test.ts > POST /api/custodian/requests/:id/checkout > checks out a pending request: loan, due date, request and item states (TEST-05-02 / AC-05-02)
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ tests/api/checkout.test.ts:92:24
+     90|     const res = await request(app).post(`/api/custodian/requests/${r.i…
+     91| 
+     92|     expect(res.status).toBe(201);
+       |                        ^
+     93|     const { loan } = res.body;
+     94|     expect(loan).toMatchObject({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/17]⎯
+
+ FAIL  tests/api/checkout.test.ts > POST /api/custodian/requests/:id/checkout > removes the request from the queue afterwards
+AssertionError: expected undefined to deeply equal []
+
+- Expected: 
+Array []
+
++ Received: 
+undefined
+
+ ❯ tests/api/checkout.test.ts:118:33
+    116| 
+    117|     const queue = await request(app).get('/api/custodian/requests').se…
+    118|     expect(queue.body.requests).toEqual([]);
+       |                                 ^
+    119|   });
+    120| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/17]⎯
+
+ FAIL  tests/api/checkout.test.ts > POST /api/custodian/requests/:id/checkout > cannot check out twice: 409 REQUEST_NOT_PENDING and still exactly one loan (TEST-05-03 / AC-05-03)
+AssertionError: expected 404 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 404
+
+ ❯ tests/api/checkout.test.ts:128:26
+    126|     const again = await request(app).post(`/api/custodian/requests/${r…
+    127| 
+    128|     expect(again.status).toBe(409);
+       |                          ^
+    129|     expect(again.body.error.code).toBe('REQUEST_NOT_PENDING');
+    130|     expect(await prisma.loan.count({ where: { requestId: r.id } })).to…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/17]⎯
+
+ FAIL  tests/api/checkout.test.ts > POST /api/custodian/requests/:id/checkout > two checkouts at the same moment create exactly one loan (TEST-05-04 / AC-05-04)
+AssertionError: expected [ 404, 404 ] to deeply equal [ 201, 409 ]
+
+- Expected
++ Received
+
+  Array [
+-   201,
+-   409,
++   404,
++   404,
+  ]
+
+ ❯ tests/api/checkout.test.ts:142:49
+    140|     ]);
+    141| 
+    142|     expect(results.map((x) => x.status).sort()).toEqual([201, 409]);
+       |                                                 ^
+    143|     expect(await prisma.loan.count({ where: { itemId: item.id } })).to…
+    144|     expect(await prisma.loan.count({ where: { itemId: item.id, status:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/17]⎯
+
+ FAIL  tests/api/checkout.test.ts > POST /api/custodian/requests/:id/checkout > item no longer reserved: 409 ITEM_NOT_AVAILABLE, request stays pending, no loan (TEST-05-05 / AC-05-05)
+AssertionError: expected 404 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 404
+
+ ❯ tests/api/checkout.test.ts:154:24
+    152|     const res = await request(app).post(`/api/custodian/requests/${r.i…
+    153| 
+    154|     expect(res.status).toBe(409);
+       |                        ^
+    155|     expect(res.body.error.code).toBe('ITEM_NOT_AVAILABLE');
+    156|     expect((await prisma.borrowRequest.findUniqueOrThrow({ where: { id…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/17]⎯
+
+ FAIL  tests/api/checkout.test.ts > POST /api/custodian/requests/:id/checkout > a request that was cancelled cannot be checked out
+AssertionError: expected 404 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 404
+
+ ❯ tests/api/checkout.test.ts:168:24
+    166|     const res = await request(app).post(`/api/custodian/requests/${r.i…
+    167| 
+    168|     expect(res.status).toBe(409);
+       |                        ^
+    169|     expect(res.body.error.code).toBe('REQUEST_NOT_PENDING');
+    170|     expect((await prisma.item.findUniqueOrThrow({ where: { id: item.id…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/17]⎯
+
+ FAIL  tests/api/checkout.test.ts > POST /api/custodian/requests/:id/checkout > rejects the id abc with 400
+ FAIL  tests/api/checkout.test.ts > POST /api/custodian/requests/:id/checkout > rejects the id 0 with 400
+ FAIL  tests/api/checkout.test.ts > POST /api/custodian/requests/:id/checkout > rejects the id -3 with 400
+ FAIL  tests/api/checkout.test.ts > POST /api/custodian/requests/:id/checkout > rejects the id 1.5 with 400
+ FAIL  tests/api/checkout.test.ts > POST /api/custodian/requests/:id/checkout > rejects the id 99999999999 with 400
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/api/checkout.test.ts:197:24
+    195|     const token = await tokenFor('custodian.hw@lendlab.test');
+    196|     const res = await request(app).post(`/api/custodian/requests/${id}…
+    197|     expect(res.status).toBe(400);
+       |                        ^
+    198|     expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    199|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/17]⎯
+
+ FAIL  tests/api/checkout.test.ts > what the borrower sees after checkout (TEST-05-07 / AC-05-06) > stores the data the borrower screens read: FULFILLED request with an ACTIVE loan and due date
+AssertionError: expected 'PENDING' to be 'FULFILLED' // Object.is equality
+
+Expected: "FULFILLED"
+Received: "PENDING"
+
+ ❯ tests/api/checkout.test.ts:209:27
+    207| 
+    208|     const stored = await prisma.borrowRequest.findUniqueOrThrow({ wher…
+    209|     expect(stored.status).toBe('FULFILLED');
+       |                           ^
+    210|     expect(stored.loan?.status).toBe('ACTIVE');
+    211|     expect(stored.loan?.dueAt.toISOString()).toBe(res.body.loan.dueAt);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/17]⎯
+
+ Test Files  1 failed (1)
+      Tests  17 failed | 2 passed (19)
+   Start at  03:50:32
+   Duration  10.74s (transform 114ms, setup 0ms, collect 576ms, tests 9.87s, environment 0ms, prepare 106ms)
+

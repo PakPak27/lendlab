@@ -11,6 +11,7 @@ import { itemsRouter } from './routes/items.js';
 import { requestsRouter } from './routes/requests.js';
 import { authenticate } from './middleware/authenticate.js';
 import { requireRole } from './middleware/requireRole.js';
+import { custodianRouter } from './routes/custodian.js';
 import { apiNotFound, errorHandler } from './middleware/errorHandler.js';
 
 // Builds the Express app without starting it, so tests can import it.
@@ -49,7 +50,7 @@ export function createApp() {
   // Feature routers (each behind the guards above).
   app.use('/api/items', itemsRouter); // F-03
   app.use('/api/requests', requestsRouter); // F-04
-  // The F-05 (/api/custodian) router is added by Issue #8.
+  app.use('/api/custodian', custodianRouter); // F-05
 
   app.use('/api', apiNotFound);
 
