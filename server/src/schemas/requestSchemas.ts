@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+// Largest value of a PostgreSQL INT column. Anything above it would overflow in the query and become a 500.
+const INT_MAX = 2_147_483_647;
+
 // F-04 input rules (contract section 3).
 // BR-04: loan length is a whole number of days, 1-14. A string such as "7" is rejected, not converted.
 // BR-14: purpose is required, 5-200 characters after trimming.
@@ -7,7 +10,8 @@ export const createRequestSchema = z.object({
   itemId: z
     .number({ required_error: 'Item is required.', invalid_type_error: 'Item id must be a number.' })
     .int('Item id must be a whole number.')
-    .positive('Item id must be positive.'),
+    .positive('Item id must be positive.')
+    .max(INT_MAX, 'Item id is too large.'),
   purpose: z
     .string({ required_error: 'Purpose is required.', invalid_type_error: 'Purpose must be text.' })
     .trim()
@@ -29,5 +33,6 @@ export const requestIdParams = z.object({
   id: z
     .string()
     .regex(/^[1-9]\d*$/, 'Request id must be a positive whole number.')
-    .transform(Number),
+    .transform(Number)
+    .refine((n) => n <= INT_MAX, 'Request id is too large.'),
 });
