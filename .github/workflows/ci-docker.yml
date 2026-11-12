@@ -31,9 +31,12 @@ jobs:
     timeout-minutes: 30
 
     # Throw-away database for the tests only (not a real secret).
+    # postgres:16 (Debian), the same image as docker-compose.yml: its en_US.utf8
+    # collation sorts like Cloud SQL. The Alpine image sorts by byte value
+    # ("ESP32" before "Epson"), which fails the catalog ordering test.
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:16
         env:
           POSTGRES_USER: lendlab
           POSTGRES_PASSWORD: lendlab
