@@ -9,6 +9,8 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   SESSION_TTL_HOURS: z.coerce.number().positive().default(8),
   CORS_ORIGIN: z.string().optional(),
+  // Full commit SHA of the running release, set by the deploy pipeline (R-08).
+  GIT_SHA: z.string().optional(),
 });
 
 export type AppConfig = z.infer<typeof envSchema>;

@@ -17,6 +17,12 @@ describe('loadConfig', () => {
     expect(cfg.SESSION_TTL_HOURS).toBe(2);
   });
 
+  it('reads the release commit from GIT_SHA (R-08)', () => {
+    const sha = 'a'.repeat(40);
+    expect(loadConfig({ DATABASE_URL: 'postgresql://x', GIT_SHA: sha } as NodeJS.ProcessEnv).GIT_SHA).toBe(sha);
+    expect(loadConfig({ DATABASE_URL: 'postgresql://x' } as NodeJS.ProcessEnv).GIT_SHA).toBeUndefined();
+  });
+
   it('fails fast when DATABASE_URL is missing', () => {
     expect(() => loadConfig({} as NodeJS.ProcessEnv)).toThrow(/DATABASE_URL/);
   });
