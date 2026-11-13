@@ -44,7 +44,27 @@ All from the repository root.
 | Create / update tables | `npm run db:migrate` (dev) · `npm run db:deploy -w server` (production) |
 | Load demo data | `npm run db:seed` (needs `DEMO_USER_PASSWORD`) |
 | Run locally | `npm run dev:server` and `npm run dev:client` |
-| Run in containers | *(Issue #24)* |
+| Run in containers | `docker compose up --build` (see 3.1) |
+| Build the production image only | `docker build -t lendlab .` |
+| CI (every PR into `staging` or `main`) | `.github/workflows/ci-docker.yml`, job `test-and-docker`: `npm ci`, Prisma client, `npm test` against a PostgreSQL service, type checks, `npm run build`, `docker build` |
+
+### 3.1 Run from a fresh clone with Docker (R-01, C-03)
+
+```bash
+git clone https://github.com/PakPak27/lendlab.git && cd lendlab
+cp .env.example .env          # then set DEMO_USER_PASSWORD (8+ characters)
+docker compose up --build     # app on http://localhost:3000
+```
+
+| Service | What it does |
+|---|---|
+| `db` | PostgreSQL 16 with a named volume `pgdata`, so data survives `docker compose down` and a rebuild (`down -v` deletes it) |
+| `migrate` | One-off job from the app image: `prisma migrate deploy`, then the seed. It must exit 0 before `app` starts. Cloud Run runs the same command as a job before each release |
+| `app` | The production image: Express serves `/api` and the built React app on port 3000 |
+
+The root `.env.example` holds only the compose settings (`DEMO_USER_PASSWORD`, and `DB_PORT` / `APP_PORT` if 5432 or 3000 is already used). The `lendlab`/`lendlab` database login is for this local container only.
+
+The `Dockerfile` has two stages: `build` installs the npm workspaces from the root lock file and builds the server and client; `runtime` (node:22-alpine) keeps the compiled server, the built client, `prisma/` and `node_modules` (the migration job needs the Prisma CLI and `tsx` for the seed). It runs as the unprivileged `node` user, and `.dockerignore` keeps `.env` files, `.git`, and local builds out of the image.
 
 ## 4. GCP project and resources *(Issues #22, #26)*
 
