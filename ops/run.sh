@@ -7,4 +7,4 @@ logs() {
     --limit 40 --freshness 30m --format='value(timestamp,textPayload)' --order=asc 2>&1 \
     | sed -E 's/(postgres(ql)?:\/\/[^:]*:)[^@]*@/\1****@/g' | tail -40
 }
-umask 022; bash ~/lendlab/ops/deploy-first.sh
+umask 022; bash ~/lendlab/ops/persist-check.sh
