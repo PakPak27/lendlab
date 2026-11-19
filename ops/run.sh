@@ -1,24 +1,43 @@
 #!/usr/bin/env bash
-# Cloud Shell helper for the first manual deploy (Lab 5 #26). Read-only step: inspect.
-set -uo pipefail
+# Cloud Shell helper: first manual deploy of LendLab (Lab 5 #26).
+# Builds feat/28-deploy, pushes it tagged with the full commit SHA, points the
+# portal's migration job at it, runs migrate + seed, then updates the service.
+# Updates only this team's resources; creates and deletes nothing.
+set -euo pipefail
 R=asia-southeast1
-echo "=== account/project"; gcloud config list --format='value(core.account,core.project)'
-echo "=== job"
-gcloud run jobs describe s07a7184d-migrate --region $R --format=json | python3 -c '
-import json,sys; j=json.load(sys.stdin); c=j["spec"]["template"]["spec"]["template"]["spec"]["containers"][0]
-print("image:", c.get("image")); print("command:", c.get("command")); print("args:", c.get("args"))
-for e in c.get("env",[]):
-    v=e.get("valueFrom",{}).get("secretKeyRef")
-    print("  env", e["name"], "-> secret "+v["name"]+":"+v.get("key","") if v else "= (plain value hidden)")
-print("annotations:", {k:v for k,v in j["spec"]["template"]["metadata"].get("annotations",{}).items() if "cloudsql" in k})'
-echo "=== service"
-gcloud run services describe s07a7184d --region $R --format=json | python3 -c '
-import json,sys; j=json.load(sys.stdin); t=j["spec"]["template"]; c=t["spec"]["containers"][0]
-print("image:", c.get("image")); print("command:", c.get("command"), "args:", c.get("args")); print("ports:", c.get("ports"))
-for e in c.get("env",[]):
-    v=e.get("valueFrom",{}).get("secretKeyRef")
-    print("  env", e["name"], "-> secret "+v["name"]+":"+v.get("key","") if v else "= "+(e.get("value","") if e["name"] in ("NODE_ENV","PORT","GIT_SHA","SESSION_TTL_HOURS") else "(hidden)"))
-print("annotations:", {k:v for k,v in t["metadata"].get("annotations",{}).items() if "cloudsql" in k or "scale" in k})
-print("url:", j["status"].get("url"))'
-echo "=== images"; gcloud artifacts docker images list asia-southeast1-docker.pkg.dev/cpe-se-course-2026/s07a7184d --format='value(package,version)' 2>&1 | tail -3
-echo "=== docker"; docker version --format '{{.Server.Version}}' 2>&1 | tail -1
+P=cpe-se-course-2026
+PREFIX=s07a7184d
+REPO=$R-docker.pkg.dev/$P/$PREFIX/$PREFIX
+
+echo "=== DATABASE_URL format (password masked)"
+gcloud secrets versions access latest --secret=$PREFIX-database-url | python3 -c '
+import sys,urllib.parse as u; s=sys.stdin.read().strip(); p=u.urlsplit(s)
+print("scheme:", p.scheme, "| user:", p.username, "| host:", repr(p.hostname), "| port:", p.port, "| db:", p.path, "| query:", p.query, "| has password:", bool(p.password))
+sys.exit(0 if p.scheme in ("postgresql","postgres") else 3)'
+echo "=== demo password secret exists"; gcloud secrets describe $PREFIX-demo-password --format='value(name)'
+
+echo "=== build"
+rm -rf ~/src && git clone -q -b feat/28-deploy https://github.com/PakPak27/lendlab ~/src
+cd ~/src
+SHA=$(git rev-parse HEAD); echo "commit $SHA"
+docker build -q -t $REPO:$SHA .
+gcloud auth configure-docker $R-docker.pkg.dev --quiet >/dev/null 2>&1
+docker push -q $REPO:$SHA
+DIGEST=$(gcloud artifacts docker images describe $REPO:$SHA --format='value(image_summary.fully_qualified_digest)')
+echo "digest $DIGEST"
+
+echo "=== migrate + seed"
+gcloud run jobs update $PREFIX-migrate --region $R --image "$DIGEST" \
+  --command=sh --args='-c,/app/node_modules/.bin/prisma migrate deploy && /app/node_modules/.bin/tsx prisma/seed.ts' \
+  --update-secrets=DEMO_USER_PASSWORD=$PREFIX-demo-password:latest \
+  --update-env-vars=NODE_ENV=production --quiet
+gcloud run jobs execute $PREFIX-migrate --region $R --wait --quiet
+
+echo "=== deploy service"
+gcloud run services update $PREFIX --region $R --image "$DIGEST" \
+  --update-env-vars=NODE_ENV=production,GIT_SHA=$SHA --quiet
+URL=$(gcloud run services describe $PREFIX --region $R --format='value(status.url)')
+echo "url $URL"
+echo "=== smoke"
+python3 deploy/smoke_test.py "$URL" "$SHA"
+echo "=== DONE $SHA"
