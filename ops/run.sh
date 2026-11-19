@@ -9,12 +9,13 @@ P=cpe-se-course-2026
 PREFIX=s07a7184d
 REPO=$R-docker.pkg.dev/$P/$PREFIX/$PREFIX
 
-echo "=== DATABASE_URL format (password masked)"
-gcloud secrets versions access latest --secret=$PREFIX-database-url | python3 -c '
-import sys,urllib.parse as u; s=sys.stdin.read().strip(); p=u.urlsplit(s)
-print("scheme:", p.scheme, "| user:", p.username, "| host:", repr(p.hostname), "| port:", p.port, "| db:", p.path, "| query:", p.query, "| has password:", bool(p.password))
-sys.exit(0 if p.scheme in ("postgresql","postgres") else 3)'
-echo "=== demo password secret exists"; gcloud secrets describe $PREFIX-demo-password --format='value(name)'
+echo "=== demo password -> $PREFIX-app-secret-1"
+if [ -f ~/pw ]; then
+  tr -d '
+' < ~/pw | gcloud secrets versions add $PREFIX-app-secret-1 --data-file=- --quiet
+  rm -f ~/pw
+  echo "new secret version added; local copy removed"
+fi
 
 echo "=== build"
 rm -rf ~/src && git clone -q -b feat/28-deploy https://github.com/PakPak27/lendlab ~/src
@@ -29,7 +30,7 @@ echo "digest $DIGEST"
 echo "=== migrate + seed"
 gcloud run jobs update $PREFIX-migrate --region $R --image "$DIGEST" \
   --command=sh --args='-c,/app/node_modules/.bin/prisma migrate deploy && /app/node_modules/.bin/tsx prisma/seed.ts' \
-  --update-secrets=DEMO_USER_PASSWORD=$PREFIX-demo-password:latest \
+  --update-secrets=DEMO_USER_PASSWORD=$PREFIX-app-secret-1:latest \
   --update-env-vars=NODE_ENV=production --quiet
 gcloud run jobs execute $PREFIX-migrate --region $R --wait --quiet
 
