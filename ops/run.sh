@@ -10,11 +10,16 @@ PREFIX=s07a7184d
 REPO=$R-docker.pkg.dev/$P/$PREFIX/$PREFIX
 
 echo "=== demo password -> $PREFIX-app-secret-1"
-if [ -f ~/pw ]; then
-  tr -d '
-' < ~/pw | gcloud secrets versions add $PREFIX-app-secret-1 --data-file=- --quiet
-  rm -f ~/pw
-  echo "new secret version added; local copy removed"
+# Generated here and kept only in a private file in this Cloud Shell home
+# (never printed). Set once: the seed uses it only when it creates the accounts.
+PWFILE=~/lendlab-demo-password-PRIVATE.txt
+if [ ! -f "$PWFILE" ]; then
+  umask 077
+  tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 20 > "$PWFILE"
+  gcloud secrets versions add $PREFIX-app-secret-1 --data-file="$PWFILE" --quiet
+  echo "new secret version added; password is in $PWFILE (not printed)"
+else
+  echo "already set; password is in $PWFILE"
 fi
 
 echo "=== build"
