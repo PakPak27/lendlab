@@ -9,9 +9,9 @@ Draft v0.1. The Product Team (LendLab) gives this file to the UAT Team. Fill the
 | Product | LendLab — equipment lending for the CPE labs |
 | Repository | https://github.com/PakPak27/lendlab |
 | Sprint 1 baseline | tag `v0.1.0` (commit `00ee860`) |
-| Tested release | *TBD: commit SHA shown by `<URL>/api/health` on the test day* |
-| Deployed URL | *TBD: Cloud Run URL* |
-| Cloud Run revision | *TBD* |
+| Tested release | The commit shown by https://s07a7184d-4d7hbszvwq-as.a.run.app/api/health on the test day (`commit` field). The Product Team confirms it in the chat before the session and does not deploy during it. *Current: `6a9882f354d98b255966020f8f27c9976a416230` (first deploy, 2026-11-20); to be replaced by the first pipeline release from `main`.* |
+| Deployed URL | https://s07a7184d-4d7hbszvwq-as.a.run.app |
+| Cloud Run revision | Given by the Product Team with the commit (current: `s07a7184d-00003-7sj`) |
 | Accepted-for-test scope | Sprint 1 only: F-01 sign-in/session, F-02 role and location access, F-03 catalog, F-04 borrow request and My Borrowing, F-05 custodian queue and checkout |
 | Out of scope | Returns, renewals, reservations calendar, item editing, search, notifications (Sprint 2 and 3) |
 | Browser | Any current Chrome, Edge or Firefox. A private window per account avoids mixing sessions. |
@@ -27,7 +27,7 @@ Draft v0.1. The Product Team (LendLab) gives this file to the UAT Team. Fill the
 
 ### Data and order
 
-The live database starts from the seed: 10 items, all **Available** except `ARD-003` (**Maintenance**). Requests and loans change item status and cannot be undone from the UI in Sprint 1, so **run the cases in order UAT-01 → UAT-05**, each on its own item as listed. Before the session the Product Team confirms that the items below are Available; if one is not, the Product Team names a replacement item of the same location before testing starts. Do not request other items, so a re-test can use fresh ones.
+The live database starts from the seed: 10 items, all **Available** except `ARD-003` (**Maintenance**). `PRJ-002` is already **Reserved** by a Product Team persistence check and is not used by these cases. Requests and loans change item status and cannot be undone from the UI in Sprint 1, so **run the cases in order UAT-01 → UAT-05**, each on its own item as listed. Before the session the Product Team confirms that the items below are Available; if one is not, the Product Team names a replacement item of the same location before testing starts. Do not request other items, so a re-test can use fresh ones.
 
 | Case | Items used |
 |---|---|
@@ -164,8 +164,8 @@ Steps
 
 Expected results
 - Step 1: redirected to `/login`.
-- Steps 2 and 3: the same message "Invalid e-mail or password." in both cases; still on `/login`.
-- Step 4: an error under the e-mail field; still on `/login`.
+- Steps 2 and 3: the same red message "Invalid e-mail or password." in both cases; still on `/login`.
+- Step 4: "Enter a valid e-mail address." under the e-mail field; still on `/login`.
 - Step 5: lands on `/catalog` as Borrower One.
 
 ## 3. Coverage
