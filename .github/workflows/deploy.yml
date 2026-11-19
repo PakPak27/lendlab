@@ -1,0 +1,114 @@
+# LendLab deploy pipeline (Lab 5, R-07 and R-08). Adapted from the Lab 5 starter kit.
+#
+# On every push to main (a merged release PR) or a manual run:
+#   1. rerun the CI workflow (job test-and-docker); a red CI stops the deploy
+#   2. sign in to Google Cloud with Workload Identity Federation (no key file)
+#   3. build and push the image tagged with the full commit SHA
+#   4. deploy/release.sh: pin by digest -> migration job -> update Cloud Run
+#   5. deploy/smoke_test.py: read-only checks on the live URL, including that
+#      /api/health reports the commit that was just deployed
+#
+# Manual rollback: run this workflow by hand with image_tag = the full SHA of an
+# image already in the registry. CI, build and migration are skipped.
+#
+# Nothing secret is in this file. Values come from the GitHub environment
+# "production" (Settings > Environments), copied from the course portal's
+# "Team resources" tab:
+#   variables: GCP_PROJECT_ID, GCP_REGION, WIF_PROVIDER, WIF_SERVICE_ACCOUNT,
+#              CLOUD_RUN_SERVICE, MIGRATE_JOB, IMAGE_REPO, optional SMOKE_EMAIL
+#   secret:    optional SMOKE_PASSWORD (set with SMOKE_EMAIL, or neither)
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Rollback: full commit SHA of an existing image. Leave empty to test, build and deploy main.'
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+# Releases queue up; a running migration or deploy is never cancelled.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  test:
+    if: github.ref == 'refs/heads/main' && !inputs.image_tag
+    uses: ./.github/workflows/ci-docker.yml
+
+  deploy:
+    needs: test
+    if: >-
+      always() && !cancelled() && github.ref == 'refs/heads/main' &&
+      (needs.test.result == 'success' ||
+       (github.event_name == 'workflow_dispatch' && inputs.image_tag != '' && needs.test.result == 'skipped'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    permissions:
+      contents: read
+      id-token: write # keyless Google Cloud sign-in (WIF)
+    env:
+      PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      REGION: ${{ vars.GCP_REGION }}
+      SERVICE_NAME: ${{ vars.CLOUD_RUN_SERVICE }}
+      MIGRATE_JOB_NAME: ${{ vars.MIGRATE_JOB }}
+      IMAGE_REPO: ${{ vars.IMAGE_REPO }}
+      IMAGE_TAG: ${{ inputs.image_tag || github.sha }}
+      ROLLBACK: ${{ inputs.image_tag != '' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check deployment settings
+        env:
+          WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
+          WIF_SERVICE_ACCOUNT: ${{ vars.WIF_SERVICE_ACCOUNT }}
+        run: |
+          for name in PROJECT_ID REGION SERVICE_NAME MIGRATE_JOB_NAME IMAGE_REPO WIF_PROVIDER WIF_SERVICE_ACCOUNT; do
+            [[ -n "${!name}" ]] || { echo "Missing setting: $name"; exit 1; }
+          done
+          [[ "$IMAGE_TAG" =~ ^[0-9a-f]{40}$ ]] || { echo 'Image tag must be a full 40-character commit SHA.'; exit 1; }
+
+      - name: Sign in to Google Cloud without a key
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.WIF_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+
+      - name: Build and push image
+        if: env.ROLLBACK != 'true'
+        run: |
+          gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
+          docker build --tag "$IMAGE_REPO:$IMAGE_TAG" .
+          docker push "$IMAGE_REPO:$IMAGE_TAG"
+
+      - name: Pin image, migrate and deploy
+        run: bash deploy/release.sh
+
+      - name: Smoke test the live URL
+        env:
+          SMOKE_EMAIL: ${{ vars.SMOKE_EMAIL }}
+          SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
+        run: python3 deploy/smoke_test.py "$SERVICE_URL" "$IMAGE_TAG"
+
+      - name: Record deployment
+        run: |
+          {
+            echo '### LendLab deployment'
+            echo "- Commit: \`$IMAGE_TAG\`"
+            echo "- Image digest: \`$DEPLOYED_IMAGE\`"
+            echo "- Rollback: $ROLLBACK"
+            echo "- URL: $SERVICE_URL"
+            echo '- Smoke test passed: health (running commit matches), ready (DB), HTML, categories.'
+          } >> "$GITHUB_STEP_SUMMARY"

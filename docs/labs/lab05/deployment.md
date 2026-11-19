@@ -80,4 +80,23 @@ The `Dockerfile` has two stages: `build` installs the npm workspaces from the ro
 
 ## 5. Release procedure *(Issues #27, #28)*
 
-To be written with the deploy workflow: how a change goes from a feature branch through `staging` into `main`, how the pipeline deploys it, and how to find the commit that is running (`GET /api/health` returns `commit`).
+Only `main` deploys, so every merge into `main` is a release.
+
+1. Open an Issue (label `lab5` for Lab 5 work), branch from `staging` as `feat/<issue>-<name>` or `fix/<issue>-<name>`.
+2. Open a PR into `staging`. CI (`test-and-docker`) runs; the teammate reviews with a specific check. The author never approves their own PR.
+3. When `staging` is ready, open a release PR from `staging` into `main`. CI runs again and the teammate approves it.
+4. Merging into `main` starts `.github/workflows/deploy.yml`:
+   1. reruns CI; a failure stops the release;
+   2. signs in to Google Cloud with Workload Identity Federation (no key file);
+   3. builds the image and pushes it tagged with the full commit SHA;
+   4. `deploy/release.sh` pins the image by digest, runs the migration job (`--wait`; a failed migration stops the release before the service changes), then points the Cloud Run service at the image and sets `GIT_SHA` with `--update-env-vars`;
+   5. `deploy/smoke_test.py` checks `/api/health`, `/api/ready`, `/` and `/api/categories` on the live URL, and fails unless `/api/health` reports the commit that was just deployed.
+5. The run's summary shows the commit, the image digest and the URL.
+
+**Which commit is running (R-08):** open `<service URL>/api/health`; `commit` is the full SHA of the release. The Cloud Run revision's image is tagged with the same SHA.
+
+**Rollback:** Actions → Deploy → Run workflow, `image_tag` = the full SHA of an earlier release. CI, build and migration are skipped, and the service is pointed back to that image. Fix forward with a normal PR afterwards.
+
+**GitHub settings used by the pipeline** (environment `production`, values from the course portal's "Team resources" tab): variables `GCP_PROJECT_ID`, `GCP_REGION`, `WIF_PROVIDER`, `WIF_SERVICE_ACCOUNT`, `CLOUD_RUN_SERVICE`, `MIGRATE_JOB`, `IMAGE_REPO`, and optionally `SMOKE_EMAIL` with the secret `SMOKE_PASSWORD`. None of the variables is a secret.
+
+The course portal created the Cloud SQL instance, secrets, service account, registry, service and migration job. The pipeline only updates them; it never creates or deletes cloud resources, and the starter kit's `deploy.sh` / `teardown.sh` are not used.
