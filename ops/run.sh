@@ -13,10 +13,12 @@ echo "=== demo password -> $PREFIX-app-secret-1"
 # Generated here and kept only in a private file in this Cloud Shell home
 # (never printed). Set once: the seed uses it only when it creates the accounts.
 PWFILE=~/lendlab-demo-password-PRIVATE.txt
-if [ ! -f "$PWFILE" ]; then
+MARK=~/.lendlab-demo-secret-added
+if [ ! -f "$MARK" ]; then
   umask 077
-  tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 20 > "$PWFILE"
+  python3 -c 'import secrets,string; a=string.ascii_letters+string.digits; print("".join(secrets.choice(a) for _ in range(20)), end="")' > "$PWFILE"
   gcloud secrets versions add $PREFIX-app-secret-1 --data-file="$PWFILE" --quiet
+  touch "$MARK"
   echo "new secret version added; password is in $PWFILE (not printed)"
 else
   echo "already set; password is in $PWFILE"
