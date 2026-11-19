@@ -68,15 +68,21 @@ The `Dockerfile` has two stages: `build` installs the npm workspaces from the ro
 
 ## 4. GCP project and resources *(Issues #22, #26)*
 
+The course runs one shared GCP project. Instead of a personal Free Trial (changed by the course announcement), the team activated its resources in the course Student Cloud portal, which created everything below under the team prefix `s07a7184d`. Students can update these resources but cannot create more or read secret values.
+
 | Item | Value |
 |---|---|
-| Project ID | *(Issue #22)* |
+| Project ID | `cpe-se-course-2026` (course project) |
 | Region | `asia-southeast1` |
-| Cloud Run service | *(Issue #26)* |
-| Migration job | *(Issue #26)* |
-| Artifact Registry repository | *(Issue #26)* |
-| Cloud SQL instance / database | *(Issue #26)* |
-| Secrets | *(Issue #26)* |
+| Public URL | https://s07a7184d-4d7hbszvwq-as.a.run.app |
+| Cloud Run service | `s07a7184d` (min instances 0, scales to zero) |
+| Migration job | `s07a7184d-migrate`: `prisma migrate deploy`, then the seed |
+| Artifact Registry image | `asia-southeast1-docker.pkg.dev/cpe-se-course-2026/s07a7184d/s07a7184d`, tagged with the full commit SHA |
+| Cloud SQL | instance `s07a7184d-pg` (PostgreSQL, `db-f1-micro`), database and user `s07a7184d`, reached through the Cloud SQL connector (`/cloudsql/...` socket) |
+| Runtime identity | `s07a7184d-runner@cpe-se-course-2026.iam.gserviceaccount.com` |
+| Secrets (Secret Manager) | `s07a7184d-database-url` → `DATABASE_URL` (service and job); `s07a7184d-app-secret-1` → `DEMO_USER_PASSWORD` (job only, used by the seed) |
+
+**First deploy (Issue #26)** was run by hand from Cloud Shell with `bash deploy/deploy.sh` on 2026-11-20: commit `6a9882f354d98b255966020f8f27c9976a416230`, revision `s07a7184d-00002-bvj`; migration applied 2 migrations and seeded 10 items and 4 demo accounts; the smoke test passed and `/api/health` reported that commit. The demo-account password was generated inside Cloud Shell, stored only in Secret Manager and a private file, and is shared with testers privately.
 
 ## 5. Release procedure *(Issues #27, #28)*
 
@@ -99,4 +105,4 @@ Only `main` deploys, so every merge into `main` is a release.
 
 **GitHub settings used by the pipeline** (environment `production`, values from the course portal's "Team resources" tab): variables `GCP_PROJECT_ID`, `GCP_REGION`, `WIF_PROVIDER`, `WIF_SERVICE_ACCOUNT`, `CLOUD_RUN_SERVICE`, `MIGRATE_JOB`, `IMAGE_REPO`, and optionally `SMOKE_EMAIL` with the secret `SMOKE_PASSWORD`. None of the variables is a secret.
 
-The course portal created the Cloud SQL instance, secrets, service account, registry, service and migration job. The pipeline only updates them; it never creates or deletes cloud resources, and the starter kit's `deploy.sh` / `teardown.sh` are not used.
+The course portal created the Cloud SQL instance, secrets, service account, registry, service and migration job. `deploy/deploy.sh` (first deploy) and the pipeline only update them; neither creates nor deletes cloud resources, and the starter kit's `teardown.sh` is not used, as the course announcement requires.
