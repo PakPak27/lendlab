@@ -15,8 +15,7 @@ echo "=== demo password -> $PREFIX-app-secret-1"
 PWFILE=~/lendlab-demo-password-PRIVATE.txt
 MARK=~/.lendlab-demo-secret-added
 if [ ! -f "$MARK" ]; then
-  umask 077
-  python3 -c 'import secrets,string; a=string.ascii_letters+string.digits; print("".join(secrets.choice(a) for _ in range(20)), end="")' > "$PWFILE"
+  (umask 077; python3 -c 'import secrets,string; a=string.ascii_letters+string.digits; print("".join(secrets.choice(a) for _ in range(20)), end="")' > "$PWFILE")
   gcloud secrets versions add $PREFIX-app-secret-1 --data-file="$PWFILE" --quiet
   touch "$MARK"
   echo "new secret version added; password is in $PWFILE (not printed)"
