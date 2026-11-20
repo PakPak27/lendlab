@@ -1,0 +1,101 @@
+# CI and Docker build (Lab 5, Issue #25).
+#
+# Runs on every Pull Request into staging or main, by hand, and as a reusable
+# workflow from deploy.yml, so nothing is deployed unless these checks pass.
+# Steps: install -> Prisma client -> server unit + API tests (real PostgreSQL)
+# -> client component tests -> type checks -> production build -> Docker build.
+# It deploys nothing and needs no secrets.
+#
+# The job id `test-and-docker` is the required status check in the ruleset for
+# main (R-06). Do not rename it.
+name: CI & Docker Build
+
+on:
+  workflow_call:
+  pull_request:
+    branches: [staging, main]
+  workflow_dispatch:
+
+# Least privilege: the checks only read the repository.
+permissions:
+  contents: read
+
+# A newer run on the same branch cancels the older one.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # Throw-away database for the tests only (not a real secret).
+    # postgres:16 (Debian), the same image as docker-compose.yml: its en_US.utf8
+    # collation sorts like Cloud SQL. The Alpine image sorts by byte value
+    # ("ESP32" before "Epson"), which fails the catalog ordering test.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: lendlab
+          POSTGRES_PASSWORD: lendlab
+          POSTGRES_DB: lendlab_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U lendlab"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # The server's test script reads server/.env.test; it is written below
+      # from these CI-only values.
+      TEST_DATABASE_URL: postgresql://lendlab:lendlab@localhost:5432/lendlab_test?schema=public
+
+    steps:
+      # Third-party actions are pinned to a full commit SHA (version in the
+      # comment); Dependabot proposes updates (.github/dependabot.yml).
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies (npm workspaces)
+        run: npm ci
+
+      - name: Generate the Prisma client
+        run: npx --workspace server prisma generate
+
+      - name: Write the CI test environment
+        run: |
+          {
+            echo "DATABASE_URL=\"$TEST_DATABASE_URL\""
+            echo "NODE_ENV=test"
+            echo "DEMO_USER_PASSWORD=\"ci-demo-password-only\""
+          } > server/.env.test
+
+      # npm test runs, in order: server unit tests, migrate the test database,
+      # server API/integration tests, then the client component tests.
+      # Any failing test fails this job.
+      - name: Test server (unit + API) and client (components)
+        run: npm test
+
+      - name: Type check server and client
+        run: |
+          npm run typecheck --workspace server
+          npm run typecheck --workspace client
+
+      - name: Production build
+        run: npm run build
+
+      # The image is only built here, not pushed (deploy.yml pushes it).
+      - name: Build the production Docker image
+        run: docker build -t lendlab:ci .

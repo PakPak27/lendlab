@@ -15,10 +15,12 @@ afterAll(async () => {
 });
 
 describe('SYS-01 health and readiness', () => {
-  it('GET /api/health returns status ok', async () => {
+  it('GET /api/health returns status ok and the running commit', async () => {
     const res = await request(app).get('/api/health');
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ status: 'ok' });
+    expect(res.body.status).toBe('ok');
+    // No GIT_SHA in the test environment, so it reports a local build.
+    expect(res.body.commit).toBe('local');
   });
 
   it('GET /api/ready confirms the database connection', async () => {
