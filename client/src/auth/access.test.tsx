@@ -11,7 +11,8 @@ const custodian = { id: 5, email: 'custodian.hw@lendlab.test', name: 'Hardware L
 
 function signedInAs(user: typeof borrower | typeof custodian, path: string) {
   sessionStorage.setItem('lendlab.token', 'tok');
-  vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ user }), { status: 200 }));
+  // A fresh Response per call: a body can be read only once, and the page also calls /api/health (release footer).
+  vi.spyOn(globalThis, 'fetch').mockImplementation(async () => new Response(JSON.stringify({ user }), { status: 200 }));
   return render(
     <MemoryRouter initialEntries={[path]}>
       <AuthProvider>
