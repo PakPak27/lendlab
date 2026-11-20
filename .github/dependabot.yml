@@ -1,0 +1,8 @@
+# Weekly Pull Requests when a GitHub Action used by the workflows has a newer
+# version (the actions are pinned to commit SHAs).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

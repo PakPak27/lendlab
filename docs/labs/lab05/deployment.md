@@ -46,6 +46,7 @@ All from the repository root.
 | Run locally | `npm run dev:server` and `npm run dev:client` |
 | Run in containers | `docker compose up --build` (see 3.1) |
 | Build the production image only | `docker build -t lendlab .` |
+| CI (every PR into `staging` or `main`) | `.github/workflows/ci-docker.yml`, job `test-and-docker`: `npm ci`, Prisma client, `npm test` against a PostgreSQL service, type checks, `npm run build`, `docker build` |
 
 ### 3.1 Run from a fresh clone with Docker (R-01, C-03)
 
