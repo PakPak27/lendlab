@@ -12,7 +12,7 @@
 # image already in the registry. CI, build and migration are skipped.
 #
 # Nothing secret is in this file. Values come from the GitHub environment
-# "production" (Settings > Environments), copied from the course portal's
+# "demo" (Settings > Environments; the name the course portal links WIF to), copied from the course portal's
 # "Team resources" tab:
 #   variables: GCP_PROJECT_ID, GCP_REGION, WIF_PROVIDER, WIF_SERVICE_ACCOUNT,
 #              CLOUD_RUN_SERVICE, MIGRATE_JOB, IMAGE_REPO, optional SMOKE_EMAIL
@@ -36,7 +36,7 @@ permissions:
 
 # Releases queue up; a running migration or deploy is never cancelled.
 concurrency:
-  group: deploy-production
+  group: deploy-demo
   cancel-in-progress: false
 
 jobs:
@@ -52,7 +52,7 @@ jobs:
        (github.event_name == 'workflow_dispatch' && inputs.image_tag != '' && needs.test.result == 'skipped'))
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment: production
+    environment: demo
     permissions:
       contents: read
       id-token: write # keyless Google Cloud sign-in (WIF)

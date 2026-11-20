@@ -99,10 +99,10 @@ Only `main` deploys, so every merge into `main` is a release.
    5. `deploy/smoke_test.py` checks `/api/health`, `/api/ready`, `/` and `/api/categories` on the live URL, and fails unless `/api/health` reports the commit that was just deployed.
 5. The run's summary shows the commit, the image digest and the URL.
 
-**Which commit is running (R-08):** open `<service URL>/api/health`; `commit` is the full SHA of the release. The Cloud Run revision's image is tagged with the same SHA.
+**Which commit is running (R-08):** open `<service URL>/api/health`; `commit` is the full SHA of the release. The footer of every page shows the same commit (first 7 characters), and the Cloud Run revision's image is tagged with the same SHA.
 
 **Rollback:** Actions → Deploy → Run workflow, `image_tag` = the full SHA of an earlier release. CI, build and migration are skipped, and the service is pointed back to that image. Fix forward with a normal PR afterwards.
 
-**GitHub settings used by the pipeline** (environment `production`, values from the course portal's "Team resources" tab): variables `GCP_PROJECT_ID`, `GCP_REGION`, `WIF_PROVIDER`, `WIF_SERVICE_ACCOUNT`, `CLOUD_RUN_SERVICE`, `MIGRATE_JOB`, `IMAGE_REPO`, and optionally `SMOKE_EMAIL` with the secret `SMOKE_PASSWORD`. None of the variables is a secret.
+**GitHub settings used by the pipeline** (environment `demo`, the name the course portal links Workload Identity to; values from the course portal's "Team resources" tab): variables `GCP_PROJECT_ID`, `GCP_REGION`, `WIF_PROVIDER`, `WIF_SERVICE_ACCOUNT`, `CLOUD_RUN_SERVICE`, `MIGRATE_JOB`, `IMAGE_REPO`, and optionally `SMOKE_EMAIL` with the secret `SMOKE_PASSWORD`. None of the variables is a secret.
 
 The course portal created the Cloud SQL instance, secrets, service account, registry, service and migration job. `deploy/deploy.sh` (first deploy) and the pipeline only update them; neither creates nor deletes cloud resources, and the starter kit's `teardown.sh` is not used, as the course announcement requires.

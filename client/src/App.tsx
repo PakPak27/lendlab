@@ -7,6 +7,7 @@ import CatalogPage from './pages/CatalogPage';
 import CustodianRequestsPage from './pages/CustodianRequestsPage';
 import MyBorrowingPage from './pages/MyBorrowingPage';
 import RequestPage from './pages/RequestPage';
+import ReleaseFooter from './components/ReleaseFooter';
 
 // Role-aware navigation (F-02): borrowers see Catalog and My Borrowing, custodians see Requests.
 function NavLinks() {
@@ -111,6 +112,7 @@ export default function App() {
           />
         </Routes>
       </main>
+      <ReleaseFooter />
     </>
   );
 }
