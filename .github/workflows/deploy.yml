@@ -18,7 +18,9 @@
 #              CLOUD_RUN_SERVICE, MIGRATE_JOB, IMAGE_REPO, optional SMOKE_EMAIL
 #   secret:    optional SMOKE_PASSWORD (set with SMOKE_EMAIL, or neither)
 
-name: Deploy
+# Same workflow name as the course portal's deploy.yml: the name is part of the
+# GitHub OIDC token (`workflow` claim) that the portal's WIF rule checks.
+name: Deploy to Google Cloud
 
 on:
   push:
@@ -78,6 +80,22 @@ jobs:
             [[ -n "${!name}" ]] || { echo "Missing setting: $name"; exit 1; }
           done
           [[ "$IMAGE_TAG" =~ ^[0-9a-f]{40}$ ]] || { echo 'Image tag must be a full 40-character commit SHA.'; exit 1; }
+
+      # Prints only the non-secret claims Google's WIF rule can check, never the
+      # token itself, so a refused sign-in can be compared with the portal's rule.
+      - name: Show the OIDC claims sent to Google (token not printed)
+        env:
+          WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
+        run: |
+          curl -sf -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://iam.googleapis.com/$WIF_PROVIDER" \
+            | python3 -c '
+          import base64, json, sys
+          payload = json.load(sys.stdin)["value"].split(".")[1]
+          claims = json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)))
+          for k in ("sub", "repository", "repository_owner", "ref", "event_name", "environment",
+                    "workflow", "workflow_ref", "job_workflow_ref"):
+              print(f"{k}: {claims.get(k)}")'
 
       - name: Sign in to Google Cloud without a key
         uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
