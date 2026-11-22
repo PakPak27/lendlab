@@ -20,7 +20,7 @@ type FieldErrors = Partial<Record<'purpose' | 'requestedDays', string>>;
 export function validateRequestForm(purpose: string, days: string): FieldErrors {
   const errors: FieldErrors = {};
   const trimmed = purpose.trim();
-  if (trimmed.length < PURPOSE_MIN) errors.purpose = `Purpose must be at least ${PURPOSE_MIN} characters.`;
+  if (trimmed.length < 1) errors.purpose = 'Purpose is required.';
   else if (trimmed.length > PURPOSE_MAX) errors.purpose = `Purpose must be at most ${PURPOSE_MAX} characters.`;
   if (!/^\d+$/.test(days.trim())) errors.requestedDays = 'Loan length must be a whole number of days.';
   else {
