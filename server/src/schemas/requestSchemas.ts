@@ -15,7 +15,7 @@ export const createRequestSchema = z.object({
   purpose: z
     .string({ required_error: 'Purpose is required.', invalid_type_error: 'Purpose must be text.' })
     .trim()
-    .min(5, 'Purpose must be at least 5 characters.')
+    .min(1, 'Purpose is required.')
     .max(200, 'Purpose must be at most 200 characters.'),
   requestedDays: z
     .number({
