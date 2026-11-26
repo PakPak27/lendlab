@@ -13,6 +13,7 @@
 |---|---|---|
 | v0.1 | 2026-11-05 | Contract written before implementation |
 | v0.2 | 2026-11-06 | Review on PR #11 (@Sirazaza): TEST-03-04 moved to its own file `categories.test.ts`. |
+| v0.3 | 2026-11-26 | CHG-01 (Issue #50): `GET /api/items/:id` also returns `category.maxLoanDays` for the request form (tested by TEST-04-16 in F-04). The list and categories responses do not change. |
 
 ## 1. Purpose and scope
 
@@ -63,7 +64,7 @@ Errors: `400 VALIDATION_ERROR` (bad status), `401`.
 
 ### `GET /api/items/:id` (signed in)
 
-`200 OK`: `{ "item": { ...same fields..., "description": "..." } }`. Errors: `400` (id not a positive integer), `401`, `404 ITEM_NOT_FOUND` (unknown or retired).
+`200 OK`: `{ "item": { ...same fields..., "description": "..." } }`, where *(v0.3, CHG-01)* `category` is `{ "id": 2, "name": "Laptop", "maxLoanDays": 7 }`. Errors: `400` (id not a positive integer), `401`, `404 ITEM_NOT_FOUND` (unknown or retired).
 
 ## 6. UI behavior
 

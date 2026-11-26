@@ -13,6 +13,7 @@
 |---|---|---|
 | v0.1 | 2026-11-05 | Contract written before implementation |
 | v0.2 | 2026-11-06 | Review on PR #11 (@Sirazaza): state that checkout must use an interactive transaction. |
+| v0.3 | 2026-11-26 | CHG-01 (Issue #50): checkout keeps using the stored `requestedDays`, so requests created before the new per-category maximum keep their length (AC-04-10, TEST-04-18 in F-04). No change to checkout code. |
 
 ## 1. Purpose and scope
 

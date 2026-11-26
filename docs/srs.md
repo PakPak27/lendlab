@@ -5,7 +5,7 @@
 | Product | **LendLab** — CPE Department Equipment Lending System |
 | Course | CPE 334, Semester 1/2026 — Group Project, Theme 2 (Inventory and Borrowing System) |
 | Team | `<Chanaphath> (<ID ending 3462>)`, `<Punyawat> (<ID ending 3468>)` |
-| Document version | v0.1 (draft) — 2026-11-05 |
+| Document version | v0.2 — 2026-11-26 (CHG-01, Issue #50) |
 | Status | Baseline for Sprint 1 (Project Deliverable 1) |
 
 ### Version history
@@ -13,6 +13,7 @@
 | Version | Date | Author | Change |
 |---|---|---|---|
 | v0.1 | 2026-11-05 | Both members | First baseline: context, actors, FR/BR/NFR, decisions |
+| v0.2 | 2026-11-26 | Punyawat (review: Chanaphath) | CHG-01 (Issue #50, Lab 7): BR-04 changed from one 1–14 day limit to a maximum loan length per item category; D-07 updated, D-09 added. |
 
 ---
 
@@ -93,7 +94,7 @@ Accounts are created by seeding (no self-registration). Each account has exactly
 | BR-01 | A borrow request may be created only for an item whose status is **Available**. Requests for Reserved, On Loan, Maintenance, or Retired items are rejected. | 1 |
 | BR-02 | An item may have **at most one open commitment** at a time: either one Pending request or one Active loan. Creating a request changes the item from Available to **Reserved**; if two borrowers request the same item at the same time, exactly one succeeds. | 1 |
 | BR-03 | A checkout is allowed only for a **Pending** request whose item is Reserved. Checkout atomically sets the request to Fulfilled, creates an Active loan, and sets the item to On Loan. A request can be checked out at most once. | 1 |
-| BR-04 | The requested loan length is a whole number of days from **1 to 14**. The due date is the checkout time plus the requested number of days. | 1 |
+| BR-04 | *(v0.2, CHG-01)* Every item category has a **maximum loan length** (`maxLoanDays`, a whole number from 1 to 14): Laptop **7**, Camera **3**, Projector **3**, Microcontroller Kit **14** days. The requested loan length is a whole number of days from **1 to the maximum of the item's category**. The due date is the checkout time plus the requested number of days. Requests created before the change keep their requested length. *(v0.1: a whole number of days from 1 to 14 for every item.)* | 1 |
 | BR-05 | A Custodian may view and act on requests, loans, and items only in locations they are assigned to. | 1 |
 | BR-06 | A Borrower may view only their own requests and loans. | 1 |
 | BR-07 | A Borrower may not check out, return, reject, or change inventory. A Custodian may not create borrow requests. | 1 |
@@ -144,7 +145,8 @@ Accounts are created by seeding (no self-registration). Each account has exactly
 | D-04 | What does "authorized inventory" mean for custodians? | Custodians are assigned to **locations** and act only on items in those locations. | Provides a meaningful ownership restriction beyond role checks. |
 | D-05 | Session or token? | Opaque random **bearer token** stored hashed in a `Session` table, 8-hour lifetime, revoked on logout. | Server-side revocation for logout; matches the Lab 5 smoke test (`Authorization: Bearer`). |
 | D-06 | What does a user see when accessing another user's record? | **404 Not Found** (not 403). | Does not reveal that the record exists. Role-level violations still return 403. |
-| D-07 | Who chooses the loan length? | The borrower requests 1–14 days; the custodian cannot change it in Sprint 1. | Simple rule for Sprint 1. Custodian override is open question Q-01. |
+| D-07 | Who chooses the loan length? | The borrower requests 1 to the category maximum (BR-04 v0.2); the custodian cannot change it. | Simple rule for Sprint 1. Custodian override is open question Q-01. |
+| D-09 | Where is the maximum loan length kept, and who changes it? *(CHG-01)* | A column `Category.maxLoanDays` set by the migration and the seed. No role can change it through the API or UI. | The limit belongs to the kind of equipment, not to one item. Editing it is a later feature, not part of this change. |
 | D-08 | Is there an administrator role? | **No.** Accounts are seeded. | The theme requires two roles; administration is out of scope. |
 
 ### Open questions (to confirm with the TA/instructor)
