@@ -1,19 +1,32 @@
 #!/usr/bin/env bash
-# Lab 6 Part D exercise: deploy the exercise branch as a TAGGED, NO-TRAFFIC revision.
-# The live URL keeps 100% traffic on the current release.
+# Lab 6 cleanup: cancel request #7 (ARD-002) created by team Frenchies' UAT on the
+# exercise version. Runs once in the migration job's image with overridden args.
+# It only changes the rows when request 7 is PENDING on ARD-002 and ARD-002 is RESERVED.
 set -euo pipefail
-umask 022
-R=asia-southeast1; P=cpe-se-course-2026; S=s07a7184d
-REPO=$R-docker.pkg.dev/$P/$S/$S
-rm -rf ~/ex && git clone -q -b exercise/lab6-reintroduce-defect https://github.com/PakPak27/lendlab ~/ex && cd ~/ex
-SHA=$(git rev-parse HEAD); echo "exercise commit $SHA"
-docker build -q -t $REPO:$SHA .
-gcloud auth configure-docker $R-docker.pkg.dev --quiet >/dev/null 2>&1
-docker push -q $REPO:$SHA
-DIGEST=$(gcloud artifacts docker images describe $REPO:$SHA --format='value(image_summary.fully_qualified_digest)')
-gcloud run services update $S --region $R --image "$DIGEST" --update-env-vars=GIT_SHA=$SHA \
-  --no-traffic --tag uat-exercise --quiet
-gcloud run services describe $S --region $R --format='yaml(status.traffic)'
-echo "=== check"
-for u in $(gcloud run services describe $S --region $R --format='value(status.traffic[].url)'); do echo "$u -> $(curl -s $u/api/health)"; done
-curl -s https://s07a7184d-4d7hbszvwq-as.a.run.app/api/health; echo
+R=asia-southeast1; J=s07a7184d-migrate
+read -r -d '' JS <<'EOF' || true
+const { PrismaClient } = require('@prisma/client');
+const p = new PrismaClient();
+(async () => {
+  const it = await p.item.findUnique({ where: { assetTag: 'ARD-002' } });
+  const r = await p.borrowRequest.findUnique({ where: { id: 7 } });
+  console.log('BEFORE ' + JSON.stringify({ item: it && { id: it.id, status: it.status }, request: r && { id: r.id, itemId: r.itemId, status: r.status, purpose: r.purpose, days: r.requestedDays } }));
+  if (!it || !r || r.itemId !== it.id || r.status !== 'PENDING' || it.status !== 'RESERVED') { console.log('SKIP state not as expected'); return; }
+  await p.$transaction(async (tx) => {
+    const a = await tx.borrowRequest.updateMany({ where: { id: 7, status: 'PENDING' }, data: { status: 'CANCELLED', decidedAt: new Date(), decisionNote: 'Cancelled by the team after the Lab 6 UAT exercise test (partner asked to remove it)' } });
+    const b = await tx.item.updateMany({ where: { id: it.id, status: 'RESERVED' }, data: { status: 'AVAILABLE' } });
+    if (a.count !== 1 || b.count !== 1) throw new Error('unexpected row count');
+  });
+  const it2 = await p.item.findUnique({ where: { id: it.id } });
+  const r2 = await p.borrowRequest.findUnique({ where: { id: 7 } });
+  console.log('AFTER ' + JSON.stringify({ item: { id: it2.id, status: it2.status }, request: { id: r2.id, status: r2.status } }));
+})().catch((e) => { console.error('ERROR ' + e.message); process.exitCode = 1; }).finally(() => p.$disconnect());
+EOF
+JS1=$(printf '%s' "$JS" | tr '\n' ' ')
+echo "=== executing cleanup in job $J"
+gcloud run jobs execute $J --region $R --wait --args="^@^-c@cd /app/server && node -e \"$JS1\"" --format='value(metadata.name)' | tee /tmp/exec.txt
+EX=$(tail -1 /tmp/exec.txt)
+sleep 20
+echo "=== logs for $EX"
+gcloud logging read "resource.type=cloud_run_job AND labels.\"run.googleapis.com/execution_name\"=\"$EX\"" --limit 30 --format='value(textPayload)' --freshness=30m | grep -E 'BEFORE|AFTER|SKIP|ERROR' || echo "(no logs readable)"
+echo "=== done"
