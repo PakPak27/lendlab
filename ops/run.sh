@@ -22,9 +22,9 @@ const p = new PrismaClient();
   console.log('AFTER ' + JSON.stringify({ item: { id: it2.id, status: it2.status }, request: { id: r2.id, status: r2.status } }));
 })().catch((e) => { console.error('ERROR ' + e.message); process.exitCode = 1; }).finally(() => p.$disconnect());
 EOF
-JS1=$(printf '%s' "$JS" | tr '\n' ' ')
+B64=$(printf '%s' "$JS" | base64 -w0)
 echo "=== executing cleanup in job $J"
-gcloud run jobs execute $J --region $R --wait --args="^@^-c@cd /app/server && node -e \"$JS1\"" --format='value(metadata.name)' | tee /tmp/exec.txt
+gcloud run jobs execute $J --region $R --wait --args="^~^-c~cd /app/server && node -e \"\$(echo $B64 | base64 -d)\"" --format='value(metadata.name)' | tee /tmp/exec.txt
 EX=$(tail -1 /tmp/exec.txt)
 sleep 20
 echo "=== logs for $EX"
