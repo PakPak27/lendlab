@@ -9,6 +9,7 @@ Sprint 1 rows link to acceptance criteria (AC) and tests (TEST). Later-sprint ro
 | Version | Date | Change |
 |---|---|---|
 | v0.1 | 2026-11-05 | Baseline matrix; Sprint 1 AC/TEST links added |
+| v0.2 | 2026-11-26 | CHG-01 (Issue #50): BR-04 row and FR-05 links updated; change row added |
 
 ## 1. Functional requirements
 
@@ -18,7 +19,7 @@ Sprint 1 rows link to acceptance criteria (AC) and tests (TEST). Later-sprint ro
 | FR-02 | Sign out | F-01 | 1 | AC-01-05 / TEST-01-06, TEST-01-10 |
 | FR-03 | Show identity and role home | F-01, F-02 | 1 | AC-01-04, AC-01-08, AC-02-07 / TEST-01-05, TEST-01-10, TEST-02-08 |
 | FR-04 | View catalog | F-03 | 1 | AC-03-01…05 / TEST-03-01…06 |
-| FR-05 | Request an available item | F-04 | 1 | AC-04-01, AC-04-04, AC-04-07 / TEST-04-01, TEST-04-05…08, TEST-04-11, TEST-04-12 |
+| FR-05 | Request an available item | F-04 | 1 | AC-04-01, AC-04-04, AC-04-07, AC-04-08, AC-04-09 / TEST-04-01, TEST-04-05…08, TEST-04-11…17 |
 | FR-06 | View own requests and loans | F-04 | 1 | AC-04-05, AC-04-06 / TEST-04-09, TEST-04-10 |
 | FR-07 | Custodian views pending requests | F-05 | 1 | AC-05-01 / TEST-05-01 |
 | FR-08 | Custodian checks out | F-05 | 1 | AC-05-02, AC-05-06, AC-05-07 / TEST-05-02, TEST-05-07, TEST-05-08 |
@@ -41,7 +42,7 @@ Sprint 1 rows link to acceptance criteria (AC) and tests (TEST). Later-sprint ro
 | BR-01 | Only Available items can be requested | F-04 | 1 | AC-04-02 / TEST-04-02 |
 | BR-02 | One open commitment per item; request reserves item | F-04, F-05 | 1 | AC-04-01, AC-04-03, AC-05-04 / TEST-04-01, TEST-04-03, TEST-04-04, TEST-05-04, TEST-05-06 |
 | BR-03 | Checkout only for Pending + Reserved; atomic; once | F-05 | 1 | AC-05-02, AC-05-03, AC-05-05 / TEST-05-02, TEST-05-03, TEST-05-05 |
-| BR-04 | Loan length 1–14 days; due date = checkout + days | F-04, F-05 | 1 | AC-04-04, AC-05-02 / TEST-04-05, TEST-04-06, TEST-05-02, TEST-05-09 |
+| BR-04 | Loan length 1 to the category maximum (CHG-01); due date = checkout + days | F-03, F-04, F-05 | 1 | AC-04-04, AC-04-08, AC-04-09, AC-04-10, AC-05-02 / TEST-04-05, TEST-04-06, TEST-04-13…19, TEST-05-02, TEST-05-09 |
 | BR-05 | Custodian acts only in assigned locations | F-02, F-05, F-10 | 1 (F-10 in 2) | AC-02-05, AC-02-06 / TEST-02-05, TEST-02-06 |
 | BR-06 | Borrower sees only own records | F-02, F-04 | 1 | AC-02-04, AC-04-05 / TEST-02-04, TEST-04-09 |
 | BR-07 | Role restrictions on operations | F-02 | 1 | AC-02-02, AC-02-03 / TEST-02-02, TEST-02-03, TEST-02-07 |
@@ -77,4 +78,10 @@ Sprint 1 rows link to acceptance criteria (AC) and tests (TEST). Later-sprint ro
 | Every FR (19), BR (14), and NFR (12) is mapped to at least one feature or system responsibility | ✅ Yes |
 | Every Sprint 1 requirement has at least one AC and one planned automated test | ✅ Yes (NFR-06 and NFR-09 are also checked manually / by review in Sprint 1) |
 | Requirements without a feature | None |
-| Approved changes since baseline | None yet. Changes will be added here as `CHG-nn` rows with date and reason. |
+| Approved changes since baseline | CHG-01 (below) |
+
+## 5. Approved changes
+
+| Change | Date | Requirement | Old → new | Reason | Issue / impact |
+|---|---|---|---|---|---|
+| CHG-01 | 2026-11-26 | BR-04 | 1–14 days for every item → 1 to the category maximum (Laptop 7, Camera 3, Projector 3, Microcontroller Kit 14) | Cameras and projectors are scarce and needed for short events | #50 / [labs/lab07/impact.md](labs/lab07/impact.md) |

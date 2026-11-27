@@ -1,12 +1,13 @@
 # LendLab — System-Level Software Design Specification (SDS)
 
-Version v0.1 — 2026-11-05. Implements the baseline in [srs.md](srs.md) and [features.md](features.md). Detailed endpoints, screens, and tests for each feature are in the feature contracts under [sprints/](sprints/).
+Version v0.2 — 2026-11-26 (CHG-01). Implements the baseline in [srs.md](srs.md) and [features.md](features.md). Detailed endpoints, screens, and tests for each feature are in the feature contracts under [sprints/](sprints/).
 
 ### Version history
 
 | Version | Date | Change |
 |---|---|---|
 | v0.1 | 2026-11-05 | First baseline: architecture, data model, UI/API conventions, role matrix, auth, configuration, deployment plan |
+| v0.2 | 2026-11-26 | CHG-01 (Issue #50): `Category.maxLoanDays` added to the data model; BR-04 note on `BorrowRequest` |
 
 ---
 
@@ -91,9 +92,9 @@ erDiagram
 | **Session** | `id`, `tokenHash`, `userId`, `createdAt`, `expiresAt`, `revokedAt?` | `tokenHash` unique (SHA-256 of the raw token). Valid when `revokedAt` is null and `expiresAt > now`. |
 | **Location** | `id`, `code`, `name` | `code` unique (e.g. `HW-LAB`, `MEDIA`). |
 | **CustodianLocation** | `userId`, `locationId` | Composite primary key. Only users with role `CUSTODIAN` are assigned. |
-| **Category** | `id`, `name` | `name` unique. |
+| **Category** | `id`, `name`, `maxLoanDays` | `name` unique. `maxLoanDays` 1–14, default 14 (CHECK constraint); set by the migration and the seed (CHG-01, BR-04). |
 | **Item** | `id`, `assetTag`, `name`, `description?`, `categoryId`, `locationId`, `status`, `createdAt`, `updatedAt` | `assetTag` unique. `status` ∈ `AVAILABLE`, `RESERVED`, `ON_LOAN`, `MAINTENANCE`, `RETIRED`. |
-| **BorrowRequest** | `id`, `itemId`, `borrowerId`, `purpose`, `requestedDays`, `status`, `decidedById?`, `decidedAt?`, `decisionNote?`, `createdAt` | `status` ∈ `PENDING`, `FULFILLED`, `REJECTED`, `CANCELLED`. `requestedDays` 1–14 (CHECK constraint). **Partial unique index:** one `PENDING` request per `itemId`. |
+| **BorrowRequest** | `id`, `itemId`, `borrowerId`, `purpose`, `requestedDays`, `status`, `decidedById?`, `decidedAt?`, `decisionNote?`, `createdAt` | `status` ∈ `PENDING`, `FULFILLED`, `REJECTED`, `CANCELLED`. `requestedDays` 1–14 (CHECK constraint, the global upper bound); the per-category maximum (BR-04 v0.2) is checked by the request service, so older requests above a new maximum stay valid. **Partial unique index:** one `PENDING` request per `itemId`. |
 | **Loan** | `id`, `requestId`, `itemId`, `borrowerId`, `checkedOutById`, `checkedOutAt`, `dueAt`, `status`, `returnedAt?`, `returnedById?` | `requestId` unique (a request is fulfilled at most once). `status` ∈ `ACTIVE`, `RETURNED`. **Partial unique index:** one `ACTIVE` loan per `itemId`. |
 
 **Item status state machine**
