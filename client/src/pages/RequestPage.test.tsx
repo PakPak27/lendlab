@@ -74,6 +74,20 @@ describe('request form', () => {
     expect(createCalls(spy)).toHaveLength(0);
   });
 
+  // Lab 6 Part D regression test (BR-14, AC-04-04): a 4-character purpose was accepted.
+  it('a 4-character purpose shows the minimum-length error and sends nothing (Lab 6 UAT)', async () => {
+    const spy = mockApi({ create: () => json(201, {}) });
+    renderAt('/catalog/1/request');
+    await screen.findByText('LAP-001');
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(/Purpose/), 'abcd');
+    await user.click(screen.getByRole('button', { name: 'Submit request' }));
+
+    expect(await screen.findByText('Purpose must be at least 5 characters.')).toBeInTheDocument();
+    expect(createCalls(spy)).toHaveLength(0);
+  });
+
   it('a loan length of 15 shows an inline error and sends nothing', async () => {
     const spy = mockApi({ create: () => json(201, {}) });
     renderAt('/catalog/1/request');
