@@ -40,7 +40,9 @@ export async function listCatalogItems(status?: CatalogStatus) {
 export async function getCatalogItem(id: number) {
   const item = await prisma.item.findFirst({
     where: { id, ...notRetired },
-    select: { ...catalogSelect, description: true },
+    // CHG-01: the detail also returns the category's maximum loan length for the request form.
+    // The list keeps category { id, name } (F-03 contract v0.3).
+    select: { ...catalogSelect, category: { select: { id: true, name: true, maxLoanDays: true } }, description: true },
   });
   if (!item) {
     throw new AppError(404, 'ITEM_NOT_FOUND', 'The requested item was not found.');

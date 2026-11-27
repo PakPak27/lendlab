@@ -11,7 +11,13 @@ const LOCATIONS = [
   { code: 'MEDIA', name: 'CPE Media Room' },
 ];
 
-const CATEGORIES = ['Laptop', 'Microcontroller Kit', 'Camera', 'Projector'];
+// maxLoanDays: BR-04 v0.3 (CHG-01), the same values as migration category_max_loan_days.
+const CATEGORIES = [
+  { name: 'Laptop', maxLoanDays: 7 },
+  { name: 'Microcontroller Kit', maxLoanDays: 14 },
+  { name: 'Camera', maxLoanDays: 3 },
+  { name: 'Projector', maxLoanDays: 3 },
+];
 
 const ITEMS: Array<{
   assetTag: string;
@@ -57,8 +63,8 @@ export async function seed(client: PrismaClient = prisma, demoPassword = process
   }
 
   const categoryIds: Record<string, number> = {};
-  for (const name of CATEGORIES) {
-    const row = await client.category.upsert({ where: { name }, update: {}, create: { name } });
+  for (const { name, maxLoanDays } of CATEGORIES) {
+    const row = await client.category.upsert({ where: { name }, update: { maxLoanDays }, create: { name, maxLoanDays } });
     categoryIds[name] = row.id;
   }
 

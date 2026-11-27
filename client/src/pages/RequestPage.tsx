@@ -13,15 +13,21 @@ const PURPOSE_MAX = 200;
 const DAYS_MIN = 1;
 const DAYS_MAX = 14;
 
+const DEFAULT_DAYS = 7;
+
+// BR-04 v0.3 (CHG-01): the item detail carries the category maximum; fall back to 14.
+const maxDaysFor = (item: CatalogItemDetail) => item.category.maxLoanDays ?? DAYS_MAX;
+const categoryLimit = (item: CatalogItemDetail) => ({ name: item.category.name, maxLoanDays: maxDaysFor(item) });
+
 export const NOT_AVAILABLE_MESSAGE = 'This item is no longer available. Please choose another item.';
 
 type FieldErrors = Partial<Record<'purpose' | 'requestedDays', string>>;
 
-// CHG-01 RED stub: the category argument is accepted but not used yet (Sprint 1 rule: 1-14 for every item).
+// BR-04 v0.3 (CHG-01): with a category the limit is 1 to its maximum; without one, the 1-14 shape rule.
 export function validateRequestForm(
   purpose: string,
   days: string,
-  _category?: { name: string; maxLoanDays: number },
+  category?: { name: string; maxLoanDays: number },
 ): FieldErrors {
   const errors: FieldErrors = {};
   const trimmed = purpose.trim();
@@ -30,7 +36,9 @@ export function validateRequestForm(
   if (!/^\d+$/.test(days.trim())) errors.requestedDays = 'Loan length must be a whole number of days.';
   else {
     const n = Number(days);
-    if (n < DAYS_MIN || n > DAYS_MAX) errors.requestedDays = `Loan length must be ${DAYS_MIN}–${DAYS_MAX} days.`;
+    if (category && (n < DAYS_MIN || n > category.maxLoanDays))
+      errors.requestedDays = `Loan length for ${category.name} items must be ${DAYS_MIN}–${category.maxLoanDays} days.`;
+    else if (n < DAYS_MIN || n > DAYS_MAX) errors.requestedDays = `Loan length must be ${DAYS_MIN}–${DAYS_MAX} days.`;
   }
   return errors;
 }
@@ -58,7 +66,12 @@ export default function RequestPage() {
       return;
     }
     fetchItem(itemId)
-      .then((item) => !cancelled && setItemState({ kind: 'loaded', item }))
+      .then((item) => {
+        if (cancelled) return;
+        setItemState({ kind: 'loaded', item });
+        // CHG-01: default loan length is 7 days, or the category maximum when that is shorter.
+        setDays(String(Math.min(DEFAULT_DAYS, maxDaysFor(item))));
+      })
       .catch((err) => {
         if (cancelled) return;
         const notFound = err instanceof ApiError && err.status === 404;
@@ -77,7 +90,7 @@ export default function RequestPage() {
     event.preventDefault();
     if (saving || itemState.kind !== 'loaded') return;
     setAlert(null);
-    const errors = validateRequestForm(purpose, days);
+    const errors = validateRequestForm(purpose, days, categoryLimit(itemState.item));
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) return;
 
@@ -188,14 +201,14 @@ export default function RequestPage() {
 
           <div className="mb-3" style={{ maxWidth: 220 }}>
             <label htmlFor="requestedDays" className="form-label">
-              Loan length (days) <span className="text-danger">*</span>
+              Loan length (days) – max {maxDaysFor(item)} days <span className="text-danger">*</span>
             </label>
             <input
               id="requestedDays"
               type="number"
               inputMode="numeric"
               min={DAYS_MIN}
-              max={DAYS_MAX}
+              max={maxDaysFor(item)}
               step={1}
               className={`form-control${fieldErrors.requestedDays ? ' is-invalid' : ''}`}
               value={days}

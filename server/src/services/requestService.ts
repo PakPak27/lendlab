@@ -1,5 +1,6 @@
 import type { Prisma } from '@prisma/client';
 import { AppError, notFound } from '../lib/errors.js';
+import { loanLengthError } from '../lib/loanLength.js';
 import { prisma } from '../lib/prisma.js';
 import { isUniqueViolation } from '../lib/prismaErrors.js';
 import { borrowerScope } from '../lib/scope.js';
@@ -29,9 +30,21 @@ const requestSelect = {
 export async function createRequest(user: AuthUser, input: CreateRequestInput) {
   try {
     return await prisma.$transaction(async (tx) => {
-      const item = await tx.item.findUnique({ where: { id: input.itemId }, select: { id: true } });
+      const item = await tx.item.findUnique({
+        where: { id: input.itemId },
+        select: { id: true, category: { select: { name: true, maxLoanDays: true } } },
+      });
       if (!item) {
         throw new AppError(404, 'ITEM_NOT_FOUND', 'The requested item was not found.');
+      }
+
+      // BR-04 v0.3 (CHG-01): the length must not exceed the item category's maximum.
+      // Checked before the conditional update, so a 400 reserves nothing (contract step 3.2).
+      const tooLong = loanLengthError(input.requestedDays, item.category);
+      if (tooLong) {
+        throw new AppError(400, 'VALIDATION_ERROR', 'The request is invalid.', [
+          { field: 'requestedDays', message: tooLong },
+        ]);
       }
 
       const reserved = await tx.item.updateMany({
