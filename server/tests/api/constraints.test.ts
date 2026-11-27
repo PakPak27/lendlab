@@ -108,3 +108,26 @@ describe('BR-04 loan length 1-14 days (database CHECK constraint)', () => {
     expect(await prisma.borrowRequest.count()).toBe(0);
   });
 });
+
+// CHG-01 (Issue #50): Category.maxLoanDays from migration category_max_loan_days and the seed.
+// Raw SQL, so the test runs the same way before and after the Prisma schema change.
+describe('Category.maxLoanDays seed values and range (TEST-04-19 / AC-04-08, CHG-01)', () => {
+  it('has the agreed maximum for every seeded category', async () => {
+    const rows = await prisma.$queryRawUnsafe<{ name: string; maxLoanDays: number }[]>(
+      'SELECT "name", "maxLoanDays" FROM "Category" ORDER BY "name"',
+    );
+
+    expect(rows).toEqual([
+      { name: 'Camera', maxLoanDays: 3 },
+      { name: 'Laptop', maxLoanDays: 7 },
+      { name: 'Microcontroller Kit', maxLoanDays: 14 },
+      { name: 'Projector', maxLoanDays: 3 },
+    ]);
+  });
+
+  it.each([0, 15])('rejects maxLoanDays = %i', async (days) => {
+    await expect(
+      prisma.$executeRawUnsafe('UPDATE "Category" SET "maxLoanDays" = $1 WHERE "name" = \'Laptop\'', days),
+    ).rejects.toThrow(/Category_maxLoanDays_range|check constraint/i);
+  });
+});

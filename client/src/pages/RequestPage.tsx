@@ -17,7 +17,12 @@ export const NOT_AVAILABLE_MESSAGE = 'This item is no longer available. Please c
 
 type FieldErrors = Partial<Record<'purpose' | 'requestedDays', string>>;
 
-export function validateRequestForm(purpose: string, days: string): FieldErrors {
+// CHG-01 RED stub: the category argument is accepted but not used yet (Sprint 1 rule: 1-14 for every item).
+export function validateRequestForm(
+  purpose: string,
+  days: string,
+  _category?: { name: string; maxLoanDays: number },
+): FieldErrors {
   const errors: FieldErrors = {};
   const trimmed = purpose.trim();
   if (trimmed.length < PURPOSE_MIN) errors.purpose = `Purpose must be at least ${PURPOSE_MIN} characters.`;
