@@ -150,3 +150,23 @@ describe('cancel and rejection reason (F-06)', () => {
   });
 });
 
+// F-08 (Sprint 2), TEST-08-06 / AC-08-06: overdue badge and alert on My Borrowing.
+describe('overdue loans (F-08)', () => {
+  it('shows an Overdue badge and an alert for an overdue loan', async () => {
+    mockMine(() => json(200, { requests: [{ ...onLoan, loan: { ...onLoan.loan, isOverdue: true } }, pending] }));
+    renderMy();
+
+    const rows = await screen.findAllByTestId('borrow-row');
+    expect(within(rows[0]).getByText('Overdue')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('You have an overdue loan. Return it before requesting another item.');
+  });
+
+  it('shows no overdue alert when nothing is overdue', async () => {
+    mockMine(() => json(200, { requests: [{ ...onLoan, loan: { ...onLoan.loan, isOverdue: false } }] }));
+    renderMy();
+
+    await screen.findAllByTestId('borrow-row');
+    expect(screen.queryByText('Overdue')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+});
