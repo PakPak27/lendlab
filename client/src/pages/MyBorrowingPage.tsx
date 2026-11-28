@@ -21,6 +21,10 @@ export function borrowingStatus(r: BorrowRequest): { label: string; className: s
   return { label: r.status, className: 'text-bg-dark' };
 }
 
+// F-09 BR-08: what counts toward the borrowing limit of 3.
+export const openCommitments = (requests: BorrowRequest[]) =>
+  requests.filter((r) => r.status === 'PENDING' || r.loan?.status === 'ACTIVE').length;
+
 export default function MyBorrowingPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -83,6 +87,13 @@ export default function MyBorrowingPage() {
         <div className="alert alert-danger" role="alert">
           {actionError}
         </div>
+      )}
+
+      {state.kind === 'loaded' && (
+        <p className="text-secondary small mb-2" data-testid="open-count">
+          {/* F-09 BR-08: open commitments = Pending requests + Active loans */}
+          Open requests and loans: {openCommitments(state.requests)} of 3
+        </p>
       )}
 
       {state.kind === 'loaded' && state.requests.some((r) => r.loan?.isOverdue) && (
