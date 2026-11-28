@@ -36,3 +36,6 @@ export const requestIdParams = z.object({
     .transform(Number)
     .refine((n) => n <= INT_MAX, 'Request id is too large.'),
 });
+
+// F-06 RED stub: no rejection rule yet; this placeholder only lets the new unit test compile.
+export const rejectRequestSchema = z.object({ reason: z.string() });
