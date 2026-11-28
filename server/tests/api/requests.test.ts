@@ -77,7 +77,7 @@ describe('POST /api/requests — create and reserve', () => {
     const token = await tokenFor('borrower1@lendlab.test');
     const borrower2 = await prisma.user.findUniqueOrThrow({ where: { email: 'borrower2@lendlab.test' } });
 
-    const res = await post(token, { ...valid(await itemId('CAM-001')), borrowerId: borrower2.id });
+    const res = await post(token, { ...valid(await itemId('CAM-001'), { requestedDays: 3 }), borrowerId: borrower2.id });
 
     expect(res.status).toBe(201);
     const row = await prisma.borrowRequest.findUniqueOrThrow({ where: { id: res.body.request.id } });
@@ -92,7 +92,7 @@ describe('BR-01 only Available items can be requested (TEST-04-02 / AC-04-02)', 
       const token = await tokenFor('borrower1@lendlab.test');
       await prisma.item.update({ where: { assetTag: 'PRJ-001' }, data: { status } });
 
-      const res = await post(token, valid(await itemId('PRJ-001')));
+      const res = await post(token, valid(await itemId('PRJ-001'), { requestedDays: 3 }));
 
       expect(res.status).toBe(409);
       expect(res.body.error).toEqual({
@@ -144,7 +144,7 @@ describe('BR-02 concurrency (TEST-04-03 / AC-04-03, NFR-05)', () => {
     const t2 = await tokenFor('borrower2@lendlab.test');
     const cam2 = await itemId('CAM-002');
 
-    const results = await Promise.all([t1, t2, t1, t2, t1].map((t) => post(t, valid(cam2))));
+    const results = await Promise.all([t1, t2, t1, t2, t1].map((t) => post(t, valid(cam2, { requestedDays: 3 }))));
 
     expect(results.filter((r) => r.status === 201)).toHaveLength(1);
     expect(results.filter((r) => r.status === 409)).toHaveLength(4);
@@ -235,8 +235,8 @@ describe('GET /api/requests/mine (TEST-04-09 / AC-04-05)', () => {
     const t1 = await tokenFor('borrower1@lendlab.test');
     const t2 = await tokenFor('borrower2@lendlab.test');
     const first = await post(t1, valid(await itemId('LAP-001')));
-    const second = await post(t1, valid(await itemId('CAM-001')));
-    await post(t2, valid(await itemId('PRJ-001')));
+    const second = await post(t1, valid(await itemId('CAM-001'), { requestedDays: 3 }));
+    await post(t2, valid(await itemId('PRJ-001'), { requestedDays: 3 }));
 
     const res = await request(app).get('/api/requests/mine').set('Authorization', `Bearer ${t1}`);
 
@@ -309,7 +309,7 @@ describe('GET /api/requests/:id', () => {
 
   it("a borrower cannot read another borrower's request: 404, no data (TEST-02-04 / AC-02-04)", async () => {
     const t2 = await tokenFor('borrower2@lendlab.test');
-    const theirs = await post(t2, valid(await itemId('CAM-001')));
+    const theirs = await post(t2, valid(await itemId('CAM-001'), { requestedDays: 3 }));
 
     const res = await request(app)
       .get(`/api/requests/${theirs.body.request.id}`)
@@ -337,5 +337,60 @@ describe('GET /api/requests/:id', () => {
 
     expect(res.status).toBe(400);
     expect(res.body.error.details[0].field).toBe('id');
+  });
+});
+
+// CHG-01 (Issue #50): BR-04 v0.3, maximum loan length per item category.
+describe('per-category maximum loan length (TEST-04-14 / AC-04-08, CHG-01)', () => {
+  it.each([
+    ['LAP-001', 7, 201, 'Laptop', 7],
+    ['LAP-002', 8, 400, 'Laptop', 7],
+    ['CAM-001', 3, 201, 'Camera', 3],
+    ['CAM-002', 4, 400, 'Camera', 3],
+    ['PRJ-001', 3, 201, 'Projector', 3],
+    ['PRJ-002', 4, 400, 'Projector', 3],
+    ['ARD-001', 14, 201, 'Microcontroller Kit', 14],
+  ] as const)('%s for %i days -> %i', async (assetTag, days, expected, category, max) => {
+    const token = await tokenFor('borrower1@lendlab.test');
+    const before = await prisma.borrowRequest.count();
+
+    const res = await post(token, valid(await itemId(assetTag), { requestedDays: days }));
+
+    expect(res.status).toBe(expected);
+    if (expected === 201) {
+      expect(res.body.request.requestedDays).toBe(days);
+      expect(await itemStatus(assetTag)).toBe('RESERVED');
+    } else {
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+      expect(res.body.error.details).toEqual([
+        { field: 'requestedDays', message: `Loan length for ${category} items must be 1–${max} days.` },
+      ]);
+      expect(await prisma.borrowRequest.count()).toBe(before);
+      expect(await itemStatus(assetTag)).toBe('AVAILABLE');
+    }
+  });
+});
+
+describe('over-limit request for an unavailable or unknown item (TEST-04-15 / AC-04-08, CHG-01)', () => {
+  it('is 400 for a Reserved laptop and changes nothing', async () => {
+    const token = await tokenFor('borrower1@lendlab.test');
+    await prisma.item.update({ where: { assetTag: 'LAP-003' }, data: { status: 'RESERVED' } });
+    const before = await prisma.borrowRequest.count();
+
+    const res = await post(token, valid(await itemId('LAP-003'), { requestedDays: 8 }));
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.details[0].field).toBe('requestedDays');
+    expect(await itemStatus('LAP-003')).toBe('RESERVED');
+    expect(await prisma.borrowRequest.count()).toBe(before);
+  });
+
+  it('is 404 ITEM_NOT_FOUND for an unknown item', async () => {
+    const token = await tokenFor('borrower1@lendlab.test');
+
+    const res = await post(token, valid(99999, { requestedDays: 8 }));
+
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('ITEM_NOT_FOUND');
   });
 });

@@ -13,7 +13,7 @@ const lap1 = {
   assetTag: 'LAP-001',
   name: 'Dell Latitude 5440',
   description: '14-inch laptop',
-  category: { id: 2, name: 'Laptop' },
+  category: { id: 2, name: 'Laptop', maxLoanDays: 7 },
   location: { id: 1, code: 'HW-LAB', name: 'CPE Hardware Lab' },
   status: 'AVAILABLE',
 };
@@ -99,7 +99,8 @@ describe('request form', () => {
     await user.type(screen.getByLabelText(/Loan length/), '15');
     await user.click(screen.getByRole('button', { name: 'Submit request' }));
 
-    expect(await screen.findByText('Loan length must be 1–14 days.')).toBeInTheDocument();
+    // F-04 v0.3 (CHG-01): the Laptop maximum is 7 days, so the message names the category.
+    expect(await screen.findByText('Loan length for Laptop items must be 1–7 days.')).toBeInTheDocument();
     expect(createCalls(spy)).toHaveLength(0);
   });
 
@@ -198,6 +199,58 @@ describe('request form', () => {
     expect(await screen.findByRole('button', { name: 'Submitting…' })).toBeDisabled();
     release(json(409, { error: { code: 'ITEM_NOT_AVAILABLE', message: 'x' } }));
     await waitFor(() => expect(screen.queryByRole('button', { name: 'Submitting…' })).not.toBeInTheDocument());
+  });
+});
+
+// CHG-01 (Issue #50), TEST-04-17 / AC-04-09: the form shows and enforces the category maximum.
+describe('per-category maximum loan length in the form (CHG-01)', () => {
+  it('laptop form shows max 7 and blocks 8', async () => {
+    const spy = mockApi({ create: () => json(201, {}) });
+    renderAt('/catalog/1/request');
+    await screen.findByText('LAP-001');
+    const user = userEvent.setup();
+
+    const days = screen.getByLabelText(/Loan length/);
+    expect(screen.getByText(/max 7 days/)).toBeInTheDocument();
+    expect(days).toHaveAttribute('max', '7');
+    expect(days).toHaveValue(7);
+
+    await user.type(screen.getByLabelText(/Purpose/), 'Lab assignment');
+    await user.clear(days);
+    await user.type(days, '8');
+    await user.click(screen.getByRole('button', { name: 'Submit request' }));
+
+    expect(await screen.findByText('Loan length for Laptop items must be 1–7 days.')).toBeInTheDocument();
+    expect(createCalls(spy)).toHaveLength(0);
+  });
+
+  it('camera form defaults to 3 and blocks 4', async () => {
+    const cam1 = { ...lap1, id: 7, assetTag: 'CAM-001', name: 'Canon EOS M50', category: { id: 1, name: 'Camera', maxLoanDays: 3 } };
+    const spy = mockApi({ item: () => json(200, { item: cam1 }), create: () => json(201, {}) });
+    renderAt('/catalog/7/request');
+    await screen.findByText('CAM-001');
+    const user = userEvent.setup();
+
+    const days = screen.getByLabelText(/Loan length/);
+    expect(screen.getByText(/max 3 days/)).toBeInTheDocument();
+    expect(days).toHaveValue(3);
+
+    await user.type(screen.getByLabelText(/Purpose/), 'Event video shoot');
+    await user.clear(days);
+    await user.type(days, '4');
+    await user.click(screen.getByRole('button', { name: 'Submit request' }));
+
+    expect(await screen.findByText('Loan length for Camera items must be 1–3 days.')).toBeInTheDocument();
+    expect(createCalls(spy)).toHaveLength(0);
+  });
+
+  it.each([
+    ['7', 7, 'Laptop', {}],
+    ['8', 7, 'Laptop', { requestedDays: 'Loan length for Laptop items must be 1–7 days.' }],
+    ['3', 3, 'Camera', {}],
+    ['4', 3, 'Camera', { requestedDays: 'Loan length for Camera items must be 1–3 days.' }],
+  ])('validateRequestForm days %j with max %i (%s)', (days, max, name, expected) => {
+    expect(validateRequestForm('abcde', days, { name, maxLoanDays: max })).toEqual(expected);
   });
 });
 

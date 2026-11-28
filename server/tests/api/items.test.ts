@@ -164,3 +164,18 @@ describe('GET /api/items/:id', () => {
     expect(res.body.error.details[0].field).toBe('id');
   });
 });
+
+// CHG-01 (Issue #50): the request form needs the category maximum; the list keeps its v0.2 shape (TEST-03-01).
+describe('item detail includes the category maximum loan length (TEST-04-16 / AC-04-09, CHG-01)', () => {
+  it.each([
+    ['LAP-001', 'Laptop', 7],
+    ['CAM-001', 'Camera', 3],
+  ] as const)('%s -> %s, maxLoanDays %i', async (assetTag, name, max) => {
+    const item = await prisma.item.findUniqueOrThrow({ where: { assetTag } });
+
+    const res = await get(`/api/items/${item.id}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.item.category).toEqual({ id: expect.any(Number), name, maxLoanDays: max });
+  });
+});

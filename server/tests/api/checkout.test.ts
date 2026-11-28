@@ -217,3 +217,18 @@ describe('what the borrower sees after checkout (TEST-05-07 / AC-05-06)', () => 
     expect(seen.item.status).toBe('ON_LOAN');
   });
 });
+
+// CHG-01 (Issue #50), historical data: requests created before the change keep their length.
+describe('requests created before CHG-01 (TEST-04-18 / AC-04-10)', () => {
+  it('a Pending Laptop request for 10 days can still be checked out with a 10-day due date', async () => {
+    const { request: r } = await createPendingRequest({ assetTag: 'LAP-001', requestedDays: 10 });
+    const token = await tokenFor('custodian.hw@lendlab.test');
+
+    const res = await request(app).post(`/api/custodian/requests/${r.id}/checkout`).set(bearer(token));
+
+    expect(res.status).toBe(201);
+    const { loan } = res.body;
+    expect(new Date(loan.dueAt).getTime() - new Date(loan.checkedOutAt).getTime()).toBe(10 * 86_400_000);
+    expect((await prisma.borrowRequest.findUniqueOrThrow({ where: { id: r.id } })).status).toBe('FULFILLED');
+  });
+});
