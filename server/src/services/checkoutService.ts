@@ -84,3 +84,36 @@ export async function checkoutRequest(user: AuthUser, requestId: number) {
     throw err;
   }
 }
+
+// F-06 FR-09 / BR-09: reject a Pending request in the custodian's locations with a reason;
+// the reserved item goes back to Available. Same transaction pattern as checkout, so a rejection and a
+// checkout of the same request cannot both succeed (AC-06-06).
+export async function rejectRequest(user: AuthUser, requestId: number, reason: string) {
+  return prisma.$transaction(async (tx) => {
+    const found = await tx.borrowRequest.findFirst({
+      where: { id: requestId, ...custodianScope(user) },
+      select: { id: true, itemId: true },
+    });
+    if (!found) throw notFound();
+
+    const now = new Date();
+    const rejected = await tx.borrowRequest.updateMany({
+      where: { id: found.id, status: 'PENDING' },
+      data: { status: 'REJECTED', decidedById: user.id, decidedAt: now, decisionNote: reason },
+    });
+    if (rejected.count === 0) throw requestNotPending();
+
+    await tx.item.updateMany({ where: { id: found.itemId, status: 'RESERVED' }, data: { status: 'AVAILABLE' } });
+    const request = await tx.borrowRequest.findUniqueOrThrow({
+      where: { id: found.id },
+      select: {
+        id: true,
+        status: true,
+        decisionNote: true,
+        decidedAt: true,
+        item: { select: { id: true, assetTag: true, status: true } },
+      },
+    });
+    return { request };
+  });
+}

@@ -37,5 +37,11 @@ export const requestIdParams = z.object({
     .refine((n) => n <= INT_MAX, 'Request id is too large.'),
 });
 
-// F-06 RED stub: no rejection rule yet; this placeholder only lets the new unit test compile.
-export const rejectRequestSchema = z.object({ reason: z.string() });
+// F-06 BR-09: a rejection needs a reason of 5-200 characters after trimming.
+export const rejectRequestSchema = z.object({
+  reason: z
+    .string({ required_error: 'Reason is required.', invalid_type_error: 'Reason must be text.' })
+    .trim()
+    .min(5, 'Reason must be 5–200 characters.')
+    .max(200, 'Reason must be 5–200 characters.'),
+});

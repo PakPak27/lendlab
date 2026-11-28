@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validate } from '../middleware/validate.js';
-import { checkoutRequest, listPendingRequests } from '../services/checkoutService.js';
+import { rejectRequestSchema } from '../schemas/requestSchemas.js';
+import { checkoutRequest, listPendingRequests, rejectRequest } from '../services/checkoutService.js';
 
 // Mounted under /api/custodian, which app.ts already protects with authenticate + requireRole('CUSTODIAN') (F-02).
 export const custodianRouter = Router();
@@ -35,3 +36,19 @@ custodianRouter.post('/requests/:id/checkout', validate(idParams, 'params'), asy
     next(err);
   }
 });
+
+// F-06: reject a pending request with a reason (BR-09).
+custodianRouter.post(
+  '/requests/:id/reject',
+  validate(idParams, 'params'),
+  validate(rejectRequestSchema),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params as unknown as z.infer<typeof idParams>;
+      const { reason } = req.body as z.infer<typeof rejectRequestSchema>;
+      res.json(await rejectRequest(req.user!, id, reason));
+    } catch (err) {
+      next(err);
+    }
+  },
+);
