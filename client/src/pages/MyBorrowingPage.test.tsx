@@ -109,3 +109,44 @@ describe('My Borrowing', () => {
     expect(await screen.findByText('CAM-001')).toBeInTheDocument();
   });
 });
+
+// F-06 (Sprint 2), TEST-06-08 / AC-06-07: cancel a pending request; see the rejection reason.
+describe('cancel and rejection reason (F-06)', () => {
+  it('cancels a pending request after confirmation', async () => {
+    let cancelled = false;
+    const spy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.includes('/api/auth/me')) return json(200, { user: borrower });
+      if (url.endsWith('/api/requests/13/cancel') && init?.method === 'POST') {
+        cancelled = true;
+        return json(200, { request: { ...pending, status: 'CANCELLED' } });
+      }
+      if (url.endsWith('/api/requests/mine')) return json(200, { requests: [cancelled ? { ...pending, status: 'CANCELLED' } : pending] });
+      return json(404, { error: { code: 'NOT_FOUND', message: 'Not found' } });
+    });
+    const user = userEvent.setup();
+    renderMy();
+    await screen.findByText('CAM-001');
+
+    await user.click(screen.getByRole('button', { name: 'Cancel request' }));
+    const dialog = screen.getByRole('dialog', { name: 'Cancel request' });
+    expect(dialog).toHaveTextContent('Cancel your request for CAM-001?');
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel request' }));
+
+    expect(await screen.findByText('Request cancelled.')).toBeInTheDocument();
+    expect(await screen.findByText('Cancelled')).toBeInTheDocument();
+    expect(spy.mock.calls.filter(([, i]) => i?.method === 'POST')).toHaveLength(1);
+  });
+
+  it('shows the rejection reason under a rejected request', async () => {
+    mockMine(() =>
+      json(200, { requests: [{ ...pending, status: 'REJECTED', decisionNote: 'Booked for the open house', item: { ...pending.item, status: 'AVAILABLE' } }] }),
+    );
+    renderMy();
+
+    expect(await screen.findByText('Rejected')).toBeInTheDocument();
+    expect(screen.getByText(/Booked for the open house/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Cancel request' })).not.toBeInTheDocument();
+  });
+});
+

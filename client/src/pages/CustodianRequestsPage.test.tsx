@@ -131,3 +131,47 @@ describe('checkout flow', () => {
     expect(posts).toHaveLength(1);
   });
 });
+
+// F-06 (Sprint 2), TEST-06-08 / AC-06-07: reject a pending request with a reason.
+describe('reject a request (F-06)', () => {
+  async function openReject() {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(json(200, { requests: [row()] }));
+    const user = userEvent.setup();
+    render(<CustodianRequestsPage />);
+    await screen.findByText('LAP-001');
+    await user.click(screen.getByRole('button', { name: 'Reject' }));
+    return { user, fetchSpy };
+  }
+  const posts = (spy: ReturnType<typeof vi.spyOn>) =>
+    spy.mock.calls.filter(([, init]) => (init as RequestInit | undefined)?.method === 'POST');
+
+  it('blocks a reason shorter than 5 characters without calling the API', async () => {
+    const { user, fetchSpy } = await openReject();
+    expect(screen.getByRole('dialog', { name: 'Reject request' })).toHaveTextContent('LAP-001');
+
+    await user.type(screen.getByLabelText(/Reason/), 'abcd');
+    await user.click(screen.getByRole('button', { name: 'Reject request' }));
+
+    expect(await screen.findByText('Reason must be 5–200 characters.')).toBeInTheDocument();
+    expect(posts(fetchSpy)).toHaveLength(0);
+  });
+
+  it('sends the reason once, removes the row and shows a toast', async () => {
+    const { user, fetchSpy } = await openReject();
+    await user.type(screen.getByLabelText(/Reason/), 'Booked for a class');
+    fetchSpy.mockResolvedValueOnce(
+      json(200, { request: { id: 12, status: 'REJECTED', decisionNote: 'Booked for a class', item: { id: 1, assetTag: 'LAP-001', status: 'AVAILABLE' } } }),
+    );
+    fetchSpy.mockResolvedValue(json(200, { requests: [] }));
+
+    await user.click(screen.getByRole('button', { name: 'Reject request' }));
+
+    expect(await screen.findByText('Request rejected — LAP-001 is available again.')).toBeInTheDocument();
+    expect(await screen.findByText('No pending requests for your locations.')).toBeInTheDocument();
+    const sent = posts(fetchSpy);
+    expect(sent).toHaveLength(1);
+    expect(String(sent[0][0])).toContain('/api/custodian/requests/12/reject');
+    expect(JSON.parse(String((sent[0][1] as RequestInit).body))).toEqual({ reason: 'Booked for a class' });
+  });
+});
+
