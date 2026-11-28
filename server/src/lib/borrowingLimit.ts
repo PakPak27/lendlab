@@ -1,6 +1,6 @@
-// F-09 BR-08 borrowing limit. RED stub: the Sprint 1 code has no limit, so it is never reached.
+// F-09 BR-08: a borrower may hold at most 3 open commitments (Pending requests plus Active loans).
 export const BORROWING_LIMIT = 3;
 
-export function limitReached(_openCommitments: number): boolean {
-  return false;
+export function limitReached(openCommitments: number): boolean {
+  return openCommitments >= BORROWING_LIMIT;
 }

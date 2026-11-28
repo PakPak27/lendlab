@@ -3,6 +3,7 @@ import { AppError, notFound } from '../lib/errors.js';
 import { loanLengthError } from '../lib/loanLength.js';
 import { prisma } from '../lib/prisma.js';
 import { isUniqueViolation } from '../lib/prismaErrors.js';
+import { limitReached } from '../lib/borrowingLimit.js';
 import { withOverdue } from '../lib/overdue.js';
 import { borrowerScope } from '../lib/scope.js';
 import type { CreateRequestInput } from '../schemas/requestSchemas.js';
@@ -12,6 +13,8 @@ import type { AuthUser } from './authService.js';
 
 const itemNotAvailable = () => new AppError(409, 'ITEM_NOT_AVAILABLE', 'This item is not available to request.');
 const requestNotPending = () => new AppError(409, 'REQUEST_NOT_PENDING', 'This request is no longer pending.');
+const borrowingLimit = () =>
+  new AppError(409, 'BORROWING_LIMIT', 'You already have 3 open requests or loans. Cancel a request or return an item first.');
 const overdueLoan = () =>
   new AppError(409, 'OVERDUE_LOAN', 'You have an overdue loan. Return it before requesting another item.');
 
@@ -62,6 +65,15 @@ export async function createRequest(user: AuthUser, input: CreateRequestInput) {
         where: { borrowerId: user.id, status: 'ACTIVE', dueAt: { lt: new Date() } },
       });
       if (overdue > 0) throw overdueLoan();
+
+      // F-09 BR-08: at most 3 open commitments. Lock the borrower's row first, so two requests from the
+      // same borrower are counted one after the other (NFR-05) and cannot both pass at 2.
+      await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${user.id} FOR UPDATE`;
+      const [pending, active] = await Promise.all([
+        tx.borrowRequest.count({ where: { borrowerId: user.id, status: 'PENDING' } }),
+        tx.loan.count({ where: { borrowerId: user.id, status: 'ACTIVE' } }),
+      ]);
+      if (limitReached(pending + active)) throw borrowingLimit();
 
       const reserved = await tx.item.updateMany({
         where: { id: input.itemId, status: 'AVAILABLE' },
