@@ -10,6 +10,7 @@ import type { AuthUser } from './authService.js';
 // F-04 Borrow Request and My Borrowing (contract docs/sprints/sprint-1/F-04-borrow-request.md).
 
 const itemNotAvailable = () => new AppError(409, 'ITEM_NOT_AVAILABLE', 'This item is not available to request.');
+const requestNotPending = () => new AppError(409, 'REQUEST_NOT_PENDING', 'This request is no longer pending.');
 
 // The shape returned for one request (contract section 5).
 const requestSelect = {
@@ -18,6 +19,8 @@ const requestSelect = {
   purpose: true,
   requestedDays: true,
   createdAt: true,
+  decidedAt: true, // F-06: when it was rejected or cancelled
+  decisionNote: true, // F-06: the custodian's rejection reason
   item: { select: { id: true, assetTag: true, name: true, status: true } },
   loan: { select: { id: true, status: true, checkedOutAt: true, dueAt: true } },
 } satisfies Prisma.BorrowRequestSelect;
@@ -89,4 +92,23 @@ export async function getMyRequest(user: AuthUser, id: number) {
   });
   if (!request) throw notFound('The requested borrow request was not found.');
   return request;
+}
+
+// F-06 FR-10 / BR-09: the borrower cancels their own Pending request; the item goes back to Available.
+// One transaction with conditional updates, so a checkout or rejection at the same moment cannot also succeed.
+export async function cancelMyRequest(user: AuthUser, id: number) {
+  return prisma.$transaction(async (tx) => {
+    const found = await tx.borrowRequest.findFirst({ where: { id, ...borrowerScope(user) }, select: { id: true, itemId: true } });
+    if (!found) throw notFound('The requested borrow request was not found.');
+
+    const now = new Date();
+    const cancelled = await tx.borrowRequest.updateMany({
+      where: { id: found.id, status: 'PENDING' },
+      data: { status: 'CANCELLED', decidedById: user.id, decidedAt: now },
+    });
+    if (cancelled.count === 0) throw requestNotPending();
+
+    await tx.item.updateMany({ where: { id: found.itemId, status: 'RESERVED' }, data: { status: 'AVAILABLE' } });
+    return tx.borrowRequest.findUniqueOrThrow({ where: { id: found.id }, select: requestSelect });
+  });
 }
