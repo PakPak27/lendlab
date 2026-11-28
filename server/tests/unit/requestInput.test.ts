@@ -1,6 +1,6 @@
 // F-04 input rules as pure validation (TEST-04-05, TEST-04-07 unit part / AC-04-04).
 import { describe, expect, it } from 'vitest';
-import { createRequestSchema } from '../../src/schemas/requestSchemas.js';
+import { createRequestSchema, rejectRequestSchema } from '../../src/schemas/requestSchemas.js';
 
 const base = { itemId: 1, purpose: 'Embedded systems lab', requestedDays: 7 };
 const ok = (overrides: Record<string, unknown>) => createRequestSchema.safeParse({ ...base, ...overrides }).success;
@@ -47,5 +47,19 @@ describe('createRequestSchema — item id', () => {
     ['1', false],
   ])('itemId %j -> valid: %s', (itemId, expected) => {
     expect(ok({ itemId })).toBe(expected);
+  });
+});
+
+// F-06 (Sprint 2), TEST-06-07 / AC-06-02: BR-09 rejection reason, 5-200 characters after trimming.
+describe('rejectRequestSchema - reason (BR-09, TEST-06-07)', () => {
+  it.each([
+    ['4 characters', 'a'.repeat(4), false],
+    ['only spaces', '        ', false],
+    ['201 characters', 'a'.repeat(201), false],
+    ['5 characters', 'a'.repeat(5), true],
+    ['200 characters', 'a'.repeat(200), true],
+    ['missing', undefined, false],
+  ])('%s -> valid: %s', (_name, reason, expected) => {
+    expect(rejectRequestSchema.safeParse({ reason }).success).toBe(expected);
   });
 });

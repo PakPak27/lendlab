@@ -9,8 +9,17 @@ export interface BorrowRequest {
   purpose: string;
   requestedDays: number;
   createdAt: string;
+  decidedAt?: string | null; // F-06
+  decisionNote?: string | null; // F-06: rejection reason
   item: { id: number; assetTag: string; name: string; status: ItemStatus | 'RETIRED' };
-  loan: null | { id: number; status: 'ACTIVE' | 'RETURNED'; checkedOutAt: string; dueAt: string };
+  loan: null | {
+    id: number;
+    status: 'ACTIVE' | 'RETURNED';
+    checkedOutAt: string;
+    dueAt: string;
+    returnedAt?: string | null; // F-07
+    isOverdue?: boolean; // F-08
+  };
 }
 
 export interface NewRequest {
@@ -35,4 +44,10 @@ export async function fetchMyRequests(): Promise<BorrowRequest[]> {
     throw new Error('Unexpected response from the server.');
   }
   return res.requests;
+}
+
+// POST /api/requests/:id/cancel (F-06)
+export async function cancelBorrowRequest(id: number): Promise<BorrowRequest> {
+  const res = await apiFetch<{ request: BorrowRequest }>(`/api/requests/${id}/cancel`, { method: 'POST' });
+  return res.request;
 }

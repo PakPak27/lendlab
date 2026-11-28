@@ -5,6 +5,8 @@ import ForbiddenPage from './pages/ForbiddenPage';
 import LoginPage from './pages/LoginPage';
 import CatalogPage from './pages/CatalogPage';
 import CustodianRequestsPage from './pages/CustodianRequestsPage';
+import CustodianLoansPage from './pages/CustodianLoansPage';
+import InventoryPage from './pages/InventoryPage';
 import MyBorrowingPage from './pages/MyBorrowingPage';
 import RequestPage from './pages/RequestPage';
 import ReleaseFooter from './components/ReleaseFooter';
@@ -15,7 +17,11 @@ function NavLinks() {
   if (!user) return null;
   const links =
     user.role === 'CUSTODIAN'
-      ? [{ to: '/custodian/requests', label: 'Requests' }]
+      ? [
+          { to: '/custodian/requests', label: 'Requests' },
+          { to: '/custodian/loans', label: 'Loans' }, // F-07
+          { to: '/custodian/inventory', label: 'Inventory' }, // F-10
+        ]
       : [
           { to: '/catalog', label: 'Catalog' },
           { to: '/my', label: 'My Borrowing' },
@@ -97,6 +103,22 @@ export default function App() {
             element={
               <ProtectedRoute roles={['CUSTODIAN']}>
                 <CustodianRequestsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/custodian/loans"
+            element={
+              <ProtectedRoute roles={['CUSTODIAN']}>
+                <CustodianLoansPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/custodian/inventory"
+            element={
+              <ProtectedRoute roles={['CUSTODIAN']}>
+                <InventoryPage />
               </ProtectedRoute>
             }
           />

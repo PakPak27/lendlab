@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { fetchMyRequests, type BorrowRequest } from '../api/requests';
+import { ApiError } from '../api/client';
+import { cancelBorrowRequest, fetchMyRequests, type BorrowRequest } from '../api/requests';
 import { formatDateTime } from '../lib/format';
 
 // F-04 My Borrowing (/my): the signed-in borrower's own requests and loans (FR-06, BR-06).
@@ -20,11 +21,19 @@ export function borrowingStatus(r: BorrowRequest): { label: string; className: s
   return { label: r.status, className: 'text-bg-dark' };
 }
 
+// F-09 BR-08: what counts toward the borrowing limit of 3.
+export const openCommitments = (requests: BorrowRequest[]) =>
+  requests.filter((r) => r.status === 'PENDING' || r.loan?.status === 'ACTIVE').length;
+
 export default function MyBorrowingPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [flash, setFlash] = useState<string | null>((location.state as { flash?: string } | null)?.flash ?? null);
   const [state, setState] = useState<State>({ kind: 'loading' });
+  // F-06: cancel a Pending request after confirmation.
+  const [cancelling, setCancelling] = useState<BorrowRequest | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setState({ kind: 'loading' });
@@ -48,6 +57,22 @@ export default function MyBorrowingPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  async function confirmCancel() {
+    if (!cancelling || busy) return;
+    setBusy(true);
+    setActionError(null);
+    try {
+      await cancelBorrowRequest(cancelling.id);
+      setFlash('Request cancelled.');
+    } catch (err) {
+      setActionError(err instanceof ApiError ? err.message : 'Cannot reach the server. Try again.');
+    } finally {
+      setBusy(false);
+      setCancelling(null);
+    }
+    await load();
+  }
+
   return (
     <div data-testid="page-my-borrowing">
       <h1 className="h3 mb-3">My Borrowing</h1>
@@ -55,6 +80,25 @@ export default function MyBorrowingPage() {
       {flash && (
         <div className="alert alert-success" role="status">
           {flash}
+        </div>
+      )}
+
+      {actionError && (
+        <div className="alert alert-danger" role="alert">
+          {actionError}
+        </div>
+      )}
+
+      {state.kind === 'loaded' && (
+        <p className="text-secondary small mb-2" data-testid="open-count">
+          {/* F-09 BR-08: open commitments = Pending requests + Active loans */}
+          Open requests and loans: {openCommitments(state.requests)} of 3
+        </p>
+      )}
+
+      {state.kind === 'loaded' && state.requests.some((r) => r.loan?.isOverdue) && (
+        <div className="alert alert-danger" role="alert">
+          You have an overdue loan. Return it before requesting another item.
         </div>
       )}
 
@@ -95,7 +139,17 @@ export default function MyBorrowingPage() {
             return (
               <div key={r.id} data-testid="borrow-row" className="borrow-row border-bottom py-2">
                 <span className="borrow-tag fw-semibold font-monospace">{r.item.assetTag}</span>
-                <span className="borrow-name">{r.item.name}</span>
+                <span className="borrow-name">
+                  {r.item.name}
+                  {r.status === 'REJECTED' && r.decisionNote && (
+                    <span className="d-block small text-danger">Reason: {r.decisionNote}</span>
+                  )}
+                  {r.status === 'PENDING' && (
+                    <button type="button" className="btn btn-link btn-sm text-danger p-0 d-block" onClick={() => setCancelling(r)}>
+                      Cancel request
+                    </button>
+                  )}
+                </span>
                 <span className="borrow-date text-secondary small">{formatDateTime(r.createdAt)}</span>
                 <span className="borrow-days text-secondary small">
                   {r.requestedDays} {r.requestedDays === 1 ? 'day' : 'days'}
@@ -107,7 +161,10 @@ export default function MyBorrowingPage() {
                   {r.loan ? (
                     <>
                       <span className="d-md-none text-secondary">Due </span>
-                      {formatDateTime(r.loan.dueAt)}
+                      <span className={r.loan.isOverdue ? 'text-danger fw-semibold' : undefined}>
+                        {formatDateTime(r.loan.dueAt)}
+                      </span>
+                      {r.loan.isOverdue && <span className="badge text-bg-danger ms-2">Overdue</span>}
                     </>
                   ) : (
                     <span className="text-secondary" aria-label="No due date yet">—</span>
@@ -117,6 +174,34 @@ export default function MyBorrowingPage() {
             );
           })}
         </div>
+      )}
+
+      {cancelling && (
+        <>
+          <div className="modal d-block" tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="cancel-title">
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h2 className="modal-title h5" id="cancel-title">
+                    Cancel request
+                  </h2>
+                </div>
+                <div className="modal-body">
+                  <p className="mb-0">Cancel your request for {cancelling.item.assetTag}?</p>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={() => setCancelling(null)}>
+                    Keep request
+                  </button>
+                  <button type="button" className="btn btn-danger" disabled={busy} onClick={() => void confirmCancel()}>
+                    Cancel request
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="modal-backdrop show" />
+        </>
       )}
     </div>
   );

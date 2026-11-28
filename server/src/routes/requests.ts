@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { validate } from '../middleware/validate.js';
 import { createRequestSchema, requestIdParams, type CreateRequestInput } from '../schemas/requestSchemas.js';
-import { createRequest, getMyRequest, listMyRequests } from '../services/requestService.js';
+import { cancelMyRequest, createRequest, getMyRequest, listMyRequests } from '../services/requestService.js';
 
 // F-04 Borrow Request and My Borrowing. Mounted under /api/requests, which app.ts already
 // guards with `authenticate` + `requireRole('BORROWER')` (F-02), so req.user is always a borrower.
@@ -29,6 +29,16 @@ requestsRouter.get('/:id', validate(requestIdParams, 'params'), async (req, res,
   try {
     const { id } = req.params as unknown as { id: number };
     res.json({ request: await getMyRequest(req.user!, id) });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// F-06: the borrower cancels their own pending request (FR-10, BR-09).
+requestsRouter.post('/:id/cancel', validate(requestIdParams, 'params'), async (req, res, next) => {
+  try {
+    const { id } = req.params as unknown as { id: number };
+    res.json({ request: await cancelMyRequest(req.user!, id) });
   } catch (err) {
     next(err);
   }
