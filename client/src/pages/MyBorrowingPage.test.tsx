@@ -170,3 +170,15 @@ describe('overdue loans (F-08)', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });
+
+// F-09 (Sprint 2), TEST-09-07 / AC-09-07: open commitments counter (Pending requests + Active loans).
+describe('open commitments (F-09)', () => {
+  it('counts pending requests and active loans, not closed records', async () => {
+    const returned = { ...onLoan, id: 14, loan: { ...onLoan.loan, id: 6, status: 'RETURNED' } };
+    const cancelled = { ...pending, id: 15, status: 'CANCELLED' };
+    mockMine(() => json(200, { requests: [pending, onLoan, returned, cancelled] }));
+    renderMy();
+
+    expect(await screen.findByText('Open requests and loans: 2 of 3')).toBeInTheDocument();
+  });
+});

@@ -292,3 +292,27 @@ describe('borrower rule refusals (F-08)', () => {
     expect(screen.getByLabelText(/Purpose/)).toHaveValue('Lab assignment');
   });
 });
+
+// F-09 (Sprint 2), TEST-09-07 / AC-09-07: a 409 BORROWING_LIMIT shows the server message.
+describe('borrowing limit refusal (F-09)', () => {
+  it('shows the limit message from the server', async () => {
+    mockApi({
+      create: () =>
+        json(409, {
+          error: {
+            code: 'BORROWING_LIMIT',
+            message: 'You already have 3 open requests or loans. Cancel a request or return an item first.',
+          },
+        }),
+    });
+    renderAt('/catalog/1/request');
+    await screen.findByText('LAP-001');
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(/Purpose/), 'Lab assignment');
+    await user.click(screen.getByRole('button', { name: 'Submit request' }));
+
+    expect(await screen.findByText(/You already have 3 open requests or loans\./)).toBeInTheDocument();
+    expect(within(screen.getByRole('alert')).getByRole('link', { name: 'My Borrowing' })).toHaveAttribute('href', '/my');
+  });
+});
