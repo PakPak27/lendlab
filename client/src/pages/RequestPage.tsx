@@ -201,7 +201,7 @@ export default function RequestPage() {
 
           <div className="mb-3" style={{ maxWidth: 220 }}>
             <label htmlFor="requestedDays" className="form-label">
-              Loan length (days) – max {maxDaysFor(item)} days <span className="text-danger">*</span>
+              Loan length (days, max {maxDaysFor(item)}) <span className="text-danger">*</span>
             </label>
             <input
               id="requestedDays"
