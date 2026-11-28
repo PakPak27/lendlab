@@ -211,7 +211,8 @@ describe('per-category maximum loan length in the form (CHG-01)', () => {
     const user = userEvent.setup();
 
     const days = screen.getByLabelText(/Loan length/);
-    expect(screen.getByText(/max 7 days/)).toBeInTheDocument();
+    // #56: the label text is exactly the F-04 v0.3 contract wording.
+    expect(screen.getByLabelText('Loan length (days, max 7) *')).toBe(days);
     expect(days).toHaveAttribute('max', '7');
     expect(days).toHaveValue(7);
 
@@ -232,7 +233,7 @@ describe('per-category maximum loan length in the form (CHG-01)', () => {
     const user = userEvent.setup();
 
     const days = screen.getByLabelText(/Loan length/);
-    expect(screen.getByText(/max 3 days/)).toBeInTheDocument();
+    expect(screen.getByLabelText('Loan length (days, max 3) *')).toBe(days);
     expect(days).toHaveValue(3);
 
     await user.type(screen.getByLabelText(/Purpose/), 'Event video shoot');
