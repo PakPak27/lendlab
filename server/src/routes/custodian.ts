@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validate } from '../middleware/validate.js';
-import { checkoutRequest, listPendingRequests } from '../services/checkoutService.js';
+import { rejectRequestSchema } from '../schemas/requestSchemas.js';
+import { checkoutRequest, listPendingRequests, rejectRequest } from '../services/checkoutService.js';
+import { listActiveLoans, returnLoan } from '../services/loanService.js';
 
 // Mounted under /api/custodian, which app.ts already protects with authenticate + requireRole('CUSTODIAN') (F-02).
 export const custodianRouter = Router();
@@ -31,6 +33,45 @@ custodianRouter.post('/requests/:id/checkout', validate(idParams, 'params'), asy
   try {
     const { id } = req.params as unknown as z.infer<typeof idParams>;
     res.status(201).json(await checkoutRequest(req.user!, id));
+  } catch (err) {
+    next(err);
+  }
+});
+
+// F-06: reject a pending request with a reason (BR-09).
+custodianRouter.post(
+  '/requests/:id/reject',
+  validate(idParams, 'params'),
+  validate(rejectRequestSchema),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params as unknown as z.infer<typeof idParams>;
+      const { reason } = req.body as z.infer<typeof rejectRequestSchema>;
+      res.json(await rejectRequest(req.user!, id, reason));
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// F-07: active loans in the custodian's locations (FR-19) and recording a return (FR-11, BR-10).
+const returnBody = z
+  .object({ needsMaintenance: z.boolean({ invalid_type_error: 'Needs maintenance must be true or false.' }).optional() })
+  .strict();
+
+custodianRouter.get('/loans', async (req, res, next) => {
+  try {
+    res.json(await listActiveLoans(req.user!));
+  } catch (err) {
+    next(err);
+  }
+});
+
+custodianRouter.post('/loans/:id/return', validate(idParams, 'params'), validate(returnBody), async (req, res, next) => {
+  try {
+    const { id } = req.params as unknown as z.infer<typeof idParams>;
+    const { needsMaintenance } = req.body as z.infer<typeof returnBody>;
+    res.json(await returnLoan(req.user!, id, needsMaintenance ?? false));
   } catch (err) {
     next(err);
   }

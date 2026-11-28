@@ -1,5 +1,5 @@
 // F-04 request form (TEST-04-12 / AC-04-07): field validation, 409 handling, success redirect.
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -267,5 +267,28 @@ describe('validateRequestForm (mirrors BR-04 and BR-14)', () => {
     ['abcde', '', { requestedDays: 'Loan length must be a whole number of days.' }],
   ])('purpose %j, days %j', (purpose, days, expected) => {
     expect(validateRequestForm(purpose, days)).toEqual(expected);
+  });
+});
+
+// F-08 (Sprint 2), TEST-08-06 / AC-08-06: a 409 OVERDUE_LOAN shows the server message, not "no longer available".
+describe('borrower rule refusals (F-08)', () => {
+  it('shows the overdue message from the server and keeps the form', async () => {
+    mockApi({
+      create: () =>
+        json(409, {
+          error: { code: 'OVERDUE_LOAN', message: 'You have an overdue loan. Return it before requesting another item.' },
+        }),
+    });
+    renderAt('/catalog/1/request');
+    await screen.findByText('LAP-001');
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(/Purpose/), 'Lab assignment');
+    await user.click(screen.getByRole('button', { name: 'Submit request' }));
+
+    expect(await screen.findByText(/You have an overdue loan\. Return it before requesting another item\./)).toBeInTheDocument();
+    expect(screen.queryByText(/no longer available/)).not.toBeInTheDocument();
+    expect(within(screen.getByRole('alert')).getByRole('link', { name: 'My Borrowing' })).toHaveAttribute('href', '/my');
+    expect(screen.getByLabelText(/Purpose/)).toHaveValue('Lab assignment');
   });
 });

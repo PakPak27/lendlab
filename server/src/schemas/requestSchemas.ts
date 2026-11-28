@@ -36,3 +36,12 @@ export const requestIdParams = z.object({
     .transform(Number)
     .refine((n) => n <= INT_MAX, 'Request id is too large.'),
 });
+
+// F-06 BR-09: a rejection needs a reason of 5-200 characters after trimming.
+export const rejectRequestSchema = z.object({
+  reason: z
+    .string({ required_error: 'Reason is required.', invalid_type_error: 'Reason must be text.' })
+    .trim()
+    .min(5, 'Reason must be 5–200 characters.')
+    .max(200, 'Reason must be 5–200 characters.'),
+});

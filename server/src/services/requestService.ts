@@ -3,6 +3,7 @@ import { AppError, notFound } from '../lib/errors.js';
 import { loanLengthError } from '../lib/loanLength.js';
 import { prisma } from '../lib/prisma.js';
 import { isUniqueViolation } from '../lib/prismaErrors.js';
+import { withOverdue } from '../lib/overdue.js';
 import { borrowerScope } from '../lib/scope.js';
 import type { CreateRequestInput } from '../schemas/requestSchemas.js';
 import type { AuthUser } from './authService.js';
@@ -10,6 +11,13 @@ import type { AuthUser } from './authService.js';
 // F-04 Borrow Request and My Borrowing (contract docs/sprints/sprint-1/F-04-borrow-request.md).
 
 const itemNotAvailable = () => new AppError(409, 'ITEM_NOT_AVAILABLE', 'This item is not available to request.');
+const requestNotPending = () => new AppError(409, 'REQUEST_NOT_PENDING', 'This request is no longer pending.');
+const overdueLoan = () =>
+  new AppError(409, 'OVERDUE_LOAN', 'You have an overdue loan. Return it before requesting another item.');
+
+// F-08: every loan shown to the borrower carries isOverdue (BR-11).
+type WithLoan = { loan: null | { status: 'ACTIVE' | 'RETURNED'; dueAt: Date } };
+const addOverdue = <T extends WithLoan>(r: T, now = new Date()) => ({ ...r, loan: r.loan ? withOverdue(r.loan, now) : null });
 
 // The shape returned for one request (contract section 5).
 const requestSelect = {
@@ -18,8 +26,10 @@ const requestSelect = {
   purpose: true,
   requestedDays: true,
   createdAt: true,
+  decidedAt: true, // F-06: when it was rejected or cancelled
+  decisionNote: true, // F-06: the custodian's rejection reason
   item: { select: { id: true, assetTag: true, name: true, status: true } },
-  loan: { select: { id: true, status: true, checkedOutAt: true, dueAt: true } },
+  loan: { select: { id: true, status: true, checkedOutAt: true, dueAt: true, returnedAt: true } }, // F-07: returnedAt
 } satisfies Prisma.BorrowRequestSelect;
 
 // BR-01 / BR-02: create a PENDING request and reserve the item, atomically.
@@ -47,6 +57,12 @@ export async function createRequest(user: AuthUser, input: CreateRequestInput) {
         ]);
       }
 
+      // F-08 BR-12: a borrower with an overdue loan cannot create new requests (checked after 404 and 400).
+      const overdue = await tx.loan.count({
+        where: { borrowerId: user.id, status: 'ACTIVE', dueAt: { lt: new Date() } },
+      });
+      if (overdue > 0) throw overdueLoan();
+
       const reserved = await tx.item.updateMany({
         where: { id: input.itemId, status: 'AVAILABLE' },
         data: { status: 'RESERVED' },
@@ -73,12 +89,14 @@ export async function createRequest(user: AuthUser, input: CreateRequestInput) {
 }
 
 // FR-06 / BR-06: the caller's own requests, newest first.
-export function listMyRequests(user: AuthUser) {
-  return prisma.borrowRequest.findMany({
+export async function listMyRequests(user: AuthUser) {
+  const rows = await prisma.borrowRequest.findMany({
     where: borrowerScope(user),
     select: requestSelect,
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
   });
+  const now = new Date();
+  return rows.map((r) => addOverdue(r, now));
 }
 
 // BR-06 / decision D-06: another borrower's request is reported as not found.
@@ -88,5 +106,24 @@ export async function getMyRequest(user: AuthUser, id: number) {
     select: requestSelect,
   });
   if (!request) throw notFound('The requested borrow request was not found.');
-  return request;
+  return addOverdue(request);
+}
+
+// F-06 FR-10 / BR-09: the borrower cancels their own Pending request; the item goes back to Available.
+// One transaction with conditional updates, so a checkout or rejection at the same moment cannot also succeed.
+export async function cancelMyRequest(user: AuthUser, id: number) {
+  return prisma.$transaction(async (tx) => {
+    const found = await tx.borrowRequest.findFirst({ where: { id, ...borrowerScope(user) }, select: { id: true, itemId: true } });
+    if (!found) throw notFound('The requested borrow request was not found.');
+
+    const now = new Date();
+    const cancelled = await tx.borrowRequest.updateMany({
+      where: { id: found.id, status: 'PENDING' },
+      data: { status: 'CANCELLED', decidedById: user.id, decidedAt: now },
+    });
+    if (cancelled.count === 0) throw requestNotPending();
+
+    await tx.item.updateMany({ where: { id: found.itemId, status: 'RESERVED' }, data: { status: 'AVAILABLE' } });
+    return tx.borrowRequest.findUniqueOrThrow({ where: { id: found.id }, select: requestSelect });
+  });
 }
