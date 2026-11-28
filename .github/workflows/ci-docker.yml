@@ -82,11 +82,21 @@ jobs:
             echo "DEMO_USER_PASSWORD=\"ci-demo-password-only\""
           } > server/.env.test
 
-      # npm test runs, in order: server unit tests, migrate the test database,
-      # server API/integration tests, then the client component tests.
-      # Any failing test fails this job.
-      - name: Test server (unit + API) and client (components)
-        run: npm test
+      # The three suites are separate steps so that every suite reports its
+      # result even when an earlier one fails (Lab 7 technical debt: one
+      # `npm test` stopped at the first failing suite and hid the others).
+      # `!cancelled()` runs the later suites after a failure; any failing
+      # step still fails this job, and the steps after them are skipped.
+      - name: Test server (unit)
+        run: npm run test:unit --workspace server
+
+      - name: Test server (API, real PostgreSQL)
+        if: ${{ !cancelled() }}
+        run: npm run test:api --workspace server
+
+      - name: Test client (components)
+        if: ${{ !cancelled() }}
+        run: npm run test --workspace client
 
       - name: Type check server and client
         run: |
