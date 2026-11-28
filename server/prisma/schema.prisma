@@ -88,8 +88,11 @@ model CustodianLocation {
 }
 
 model Category {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id          Int    @id @default(autoincrement())
+  name        String @unique
+  // BR-04 v0.3 (CHG-01): maximum loan length for items of this category, 1-14 days
+  // (CHECK constraint in migration category_max_loan_days).
+  maxLoanDays Int    @default(14)
 
   items Item[]
 }

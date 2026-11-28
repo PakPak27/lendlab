@@ -6,7 +6,7 @@ export interface CatalogItem {
   id: number;
   assetTag: string;
   name: string;
-  category: { id: number; name: string };
+  category: { id: number; name: string; maxLoanDays?: number };
   location: { id: number; code: string; name: string };
   status: ItemStatus;
 }
