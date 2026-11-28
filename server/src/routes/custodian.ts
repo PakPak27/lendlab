@@ -4,6 +4,8 @@ import { validate } from '../middleware/validate.js';
 import { rejectRequestSchema } from '../schemas/requestSchemas.js';
 import { checkoutRequest, listPendingRequests, rejectRequest } from '../services/checkoutService.js';
 import { listActiveLoans, returnLoan } from '../services/loanService.js';
+import { createItemSchema, itemStatusSchema, updateItemSchema } from '../schemas/inventorySchemas.js';
+import { changeItemStatus, createItem, listInventory, updateItem } from '../services/inventoryService.js';
 
 // Mounted under /api/custodian, which app.ts already protects with authenticate + requireRole('CUSTODIAN') (F-02).
 export const custodianRouter = Router();
@@ -72,6 +74,50 @@ custodianRouter.post('/loans/:id/return', validate(idParams, 'params'), validate
     const { id } = req.params as unknown as z.infer<typeof idParams>;
     const { needsMaintenance } = req.body as z.infer<typeof returnBody>;
     res.json(await returnLoan(req.user!, id, needsMaintenance ?? false));
+  } catch (err) {
+    next(err);
+  }
+});
+
+// F-10: inventory of the custodian's locations (FR-13, FR-14, BR-13).
+const itemIdParams = z.object({
+  id: z
+    .string()
+    .regex(/^[1-9]\d*$/, 'Item id must be a positive whole number.')
+    .transform(Number)
+    .refine((n) => n <= 2_147_483_647, 'Item id is too large.'),
+});
+
+custodianRouter.get('/items', async (req, res, next) => {
+  try {
+    res.json(await listInventory(req.user!));
+  } catch (err) {
+    next(err);
+  }
+});
+
+custodianRouter.post('/items', validate(createItemSchema), async (req, res, next) => {
+  try {
+    res.status(201).json(await createItem(req.user!, req.body as z.infer<typeof createItemSchema>));
+  } catch (err) {
+    next(err);
+  }
+});
+
+custodianRouter.patch('/items/:id', validate(itemIdParams, 'params'), validate(updateItemSchema), async (req, res, next) => {
+  try {
+    const { id } = req.params as unknown as z.infer<typeof itemIdParams>;
+    res.json(await updateItem(req.user!, id, req.body as z.infer<typeof updateItemSchema>));
+  } catch (err) {
+    next(err);
+  }
+});
+
+custodianRouter.post('/items/:id/status', validate(itemIdParams, 'params'), validate(itemStatusSchema), async (req, res, next) => {
+  try {
+    const { id } = req.params as unknown as z.infer<typeof itemIdParams>;
+    const { status } = req.body as z.infer<typeof itemStatusSchema>;
+    res.json(await changeItemStatus(req.user!, id, status));
   } catch (err) {
     next(err);
   }

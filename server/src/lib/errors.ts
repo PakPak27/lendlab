@@ -14,6 +14,10 @@ export type ErrorCode =
   | 'ITEM_NOT_ON_LOAN' // F-07
   | 'OVERDUE_LOAN' // F-08
   | 'BORROWING_LIMIT' // F-09
+  | 'ASSET_TAG_TAKEN' // F-10
+  | 'ITEM_IN_USE' // F-10
+  | 'ITEM_RETIRED' // F-10
+  | 'INVALID_STATUS_CHANGE' // F-10
   | 'CONFLICT'
   | 'INTERNAL_ERROR';
 
