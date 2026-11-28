@@ -142,7 +142,7 @@ describe('reject a request (F-06)', () => {
     await user.click(screen.getByRole('button', { name: 'Reject' }));
     return { user, fetchSpy };
   }
-  const posts = (spy: ReturnType<typeof vi.spyOn>) =>
+  const posts = (spy: { mock: { calls: Array<[unknown, unknown?]> } }) =>
     spy.mock.calls.filter(([, init]) => (init as RequestInit | undefined)?.method === 'POST');
 
   it('blocks a reason shorter than 5 characters without calling the API', async () => {
