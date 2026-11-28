@@ -10,6 +10,8 @@ export type ErrorCode =
   | 'ITEM_NOT_FOUND'
   | 'ITEM_NOT_AVAILABLE'
   | 'REQUEST_NOT_PENDING'
+  | 'LOAN_NOT_ACTIVE' // F-07
+  | 'ITEM_NOT_ON_LOAN' // F-07
   | 'CONFLICT'
   | 'INTERNAL_ERROR';
 

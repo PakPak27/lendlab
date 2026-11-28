@@ -22,7 +22,7 @@ const requestSelect = {
   decidedAt: true, // F-06: when it was rejected or cancelled
   decisionNote: true, // F-06: the custodian's rejection reason
   item: { select: { id: true, assetTag: true, name: true, status: true } },
-  loan: { select: { id: true, status: true, checkedOutAt: true, dueAt: true } },
+  loan: { select: { id: true, status: true, checkedOutAt: true, dueAt: true, returnedAt: true } }, // F-07: returnedAt
 } satisfies Prisma.BorrowRequestSelect;
 
 // BR-01 / BR-02: create a PENDING request and reserve the item, atomically.
