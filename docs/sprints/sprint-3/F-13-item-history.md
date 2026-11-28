@@ -12,10 +12,11 @@
 | Version | Date | Change |
 |---|---|---|
 | v0.1 | 2026-11-28 | Contract written before implementation |
+| v0.2 | 2026-11-28 | Review on PR #59 (@PakPak27): manual status changes made in F-10 (Maintenance, Available, Retired) are not stored as events, so they are out of scope for the history. |
 
 ## 1. Purpose and scope
 
-A custodian opens one item in their location and sees its requests and loans, newest first: who requested it, when, the outcome (Pending, Rejected with reason, Cancelled, Fulfilled → loan checked out, due, returned, overdue). Read-only.
+A custodian opens one item in their location and sees its requests and loans, newest first: who requested it, when, the outcome (Pending, Rejected with reason, Cancelled, Fulfilled → loan checked out, due, returned, overdue). Read-only. Out of scope: manual status changes from F-10 (they are not recorded as events).
 
 ## 2. Workflow
 

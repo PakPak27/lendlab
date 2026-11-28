@@ -55,7 +55,7 @@ export default function RequestPage() {
   const [purpose, setPurpose] = useState('');
   const [days, setDays] = useState('7');
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [alert, setAlert] = useState<{ message: string; notAvailable: boolean } | null>(null);
+  const [alert, setAlert] = useState<{ message: string; notAvailable: boolean; borrowerRule?: boolean } | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -110,6 +110,9 @@ export default function RequestPage() {
         }
         setFieldErrors(map);
         if (Object.keys(map).length === 0) setAlert({ message: err.message, notAvailable: false });
+      } else if (err instanceof ApiError && err.status === 409 && err.code !== 'ITEM_NOT_AVAILABLE') {
+        // F-08 / F-09: borrower rule refusals (OVERDUE_LOAN, BORROWING_LIMIT) show the server's message.
+        setAlert({ message: err.message, notAvailable: false, borrowerRule: true });
       } else if (err instanceof ApiError && err.status === 409) {
         setAlert({ message: NOT_AVAILABLE_MESSAGE, notAvailable: true });
       } else {
@@ -165,6 +168,7 @@ export default function RequestPage() {
         <div className="alert alert-danger" role="alert">
           {alert.message}{' '}
           {alert.notAvailable && <Link to="/catalog">Back to the catalog</Link>}
+          {alert.borrowerRule && <Link to="/my">My Borrowing</Link>}
         </div>
       )}
 
