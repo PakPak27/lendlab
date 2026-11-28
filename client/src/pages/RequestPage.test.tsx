@@ -1,5 +1,5 @@
 // F-04 request form (TEST-04-12 / AC-04-07): field validation, 409 handling, success redirect.
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -288,7 +288,7 @@ describe('borrower rule refusals (F-08)', () => {
 
     expect(await screen.findByText(/You have an overdue loan\. Return it before requesting another item\./)).toBeInTheDocument();
     expect(screen.queryByText(/no longer available/)).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'My Borrowing' })).toHaveAttribute('href', '/my');
+    expect(within(screen.getByRole('alert')).getByRole('link', { name: 'My Borrowing' })).toHaveAttribute('href', '/my');
     expect(screen.getByLabelText(/Purpose/)).toHaveValue('Lab assignment');
   });
 });

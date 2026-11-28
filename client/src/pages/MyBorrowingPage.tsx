@@ -85,6 +85,12 @@ export default function MyBorrowingPage() {
         </div>
       )}
 
+      {state.kind === 'loaded' && state.requests.some((r) => r.loan?.isOverdue) && (
+        <div className="alert alert-danger" role="alert">
+          You have an overdue loan. Return it before requesting another item.
+        </div>
+      )}
+
       {state.kind === 'loading' && (
         <div className="d-flex align-items-center gap-2 py-4" role="status">
           <span className="spinner-border spinner-border-sm" aria-hidden="true" />
@@ -144,7 +150,10 @@ export default function MyBorrowingPage() {
                   {r.loan ? (
                     <>
                       <span className="d-md-none text-secondary">Due </span>
-                      {formatDateTime(r.loan.dueAt)}
+                      <span className={r.loan.isOverdue ? 'text-danger fw-semibold' : undefined}>
+                        {formatDateTime(r.loan.dueAt)}
+                      </span>
+                      {r.loan.isOverdue && <span className="badge text-bg-danger ms-2">Overdue</span>}
                     </>
                   ) : (
                     <span className="text-secondary" aria-label="No due date yet">—</span>

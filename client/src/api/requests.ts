@@ -12,7 +12,14 @@ export interface BorrowRequest {
   decidedAt?: string | null; // F-06
   decisionNote?: string | null; // F-06: rejection reason
   item: { id: number; assetTag: string; name: string; status: ItemStatus | 'RETIRED' };
-  loan: null | { id: number; status: 'ACTIVE' | 'RETURNED'; checkedOutAt: string; dueAt: string };
+  loan: null | {
+    id: number;
+    status: 'ACTIVE' | 'RETURNED';
+    checkedOutAt: string;
+    dueAt: string;
+    returnedAt?: string | null; // F-07
+    isOverdue?: boolean; // F-08
+  };
 }
 
 export interface NewRequest {
