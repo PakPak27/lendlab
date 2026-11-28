@@ -12,6 +12,7 @@ export type ErrorCode =
   | 'REQUEST_NOT_PENDING'
   | 'LOAN_NOT_ACTIVE' // F-07
   | 'ITEM_NOT_ON_LOAN' // F-07
+  | 'OVERDUE_LOAN' // F-08
   | 'CONFLICT'
   | 'INTERNAL_ERROR';
 

@@ -1,5 +1,6 @@
 import type { Prisma } from '@prisma/client';
 import { AppError, notFound } from '../lib/errors.js';
+import { withOverdue } from '../lib/overdue.js';
 import { prisma } from '../lib/prisma.js';
 import type { AuthUser } from './authService.js';
 
@@ -29,7 +30,8 @@ export async function listActiveLoans(user: AuthUser) {
     select: activeLoanSelect,
     orderBy: [{ dueAt: 'asc' }, { id: 'asc' }],
   });
-  return { loans };
+  const now = new Date();
+  return { loans: loans.map((l) => withOverdue(l, now)) }; // F-08: overdue rows come first (earliest due)
 }
 
 // FR-11 / BR-10: record a return once. Both updates run in one interactive transaction with conditional
